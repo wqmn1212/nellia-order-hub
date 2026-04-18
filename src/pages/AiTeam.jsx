@@ -15,7 +15,23 @@ const WELCOME_MESSAGES = {
   cs: "안녕하세요! 저는 넬리아의 CS AI입니다. 🤝\n\n고객 응대 전략, 클레임 처리, 고객 경험 개선을 함께 고민해드릴게요. 어떤 고객 서비스 이슈가 있으신가요?",
 };
 
-function buildSystemPrompt(agentKey, orders) {
+function buildProductContext(products) {
+  if (!products || products.length === 0) return "등록된 제품 없음";
+  return products
+    .filter((p) => p.is_active !== false)
+    .map((p) => {
+      const lines = [`[${p.name}${p.model_number ? ` (${p.model_number})` : ""}]`];
+      if (p.short_description) lines.push(`설명: ${p.short_description}`);
+      if (p.price) lines.push(`가격: ${p.price.toLocaleString()}원`);
+      if (p.specs) lines.push(`스펙:\n${p.specs}`);
+      if (p.features) lines.push(`특징: ${p.features}`);
+      if (p.target_audience) lines.push(`타겟: ${p.target_audience}`);
+      return lines.join("\n");
+    })
+    .join("\n\n");
+}
+
+function buildSystemPrompt(agentKey, orders, products = []) {
   const agent = AGENTS[agentKey];
   const totalOrders = orders.length;
   const newOrders = orders.filter((o) => o.status === "new").length;
@@ -23,11 +39,14 @@ function buildSystemPrompt(agentKey, orders) {
   const totalRevenue = orders.reduce((sum, o) => sum + (o.price || 0), 0);
   const channels = [...new Set(orders.map((o) => o.channel))];
 
-  return `당신은 넬리아(Nellia) 뷰티/화장품 브랜드의 ${agent.title}(${agent.short}) AI 직원입니다.
+  return `당신은 넬리아(Nellia) 뷰티/헤어케어 브랜드의 ${agent.title}(${agent.short}) AI 직원입니다.
 이름: ${agent.name}
 역할: ${agent.personality}
 
-현재 넬리아 CRM 데이터 요약:
+=== 넬리아 제품 DB ===
+${buildProductContext(products)}
+
+=== CRM 데이터 요약 ===
 - 총 주문 수: ${totalOrders}건
 - 신규 주문: ${newOrders}건
 - 출고 완료: ${shippedOrders}건
@@ -39,7 +58,8 @@ function buildSystemPrompt(agentKey, orders) {
 지침:
 - 한국어로 답변하세요.
 - 넬리아의 ${agent.short}로서 역할에 맞는 전문적인 조언을 제공하세요.
-- CRM 데이터를 적극 활용하여 구체적인 인사이트를 제공하세요.
+- 제품 DB의 스펙, 특징, 타겟 정보를 적극 활용하여 구체적인 인사이트를 제공하세요.
+- CRM 데이터를 함께 참고하여 답변하세요.
 - 답변은 명확하고 실행 가능한 조언 위주로 작성하세요.
 - 이모지를 자연스럽게 활용하여 친근감을 유지하세요.`;
 }
@@ -54,6 +74,12 @@ export default function AiTeam() {
   const { data: orders = [] } = useQuery({
     queryKey: ["orders"],
     queryFn: () => base44.entities.Order.list("-created_date", 500),
+    initialData: [],
+  });
+
+  const { data: products = [] } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => base44.entities.Product.list("-created_date", 100),
     initialData: [],
   });
 
@@ -85,7 +111,7 @@ export default function AiTeam() {
 
     // LLM 컨텍스트: DB 기록 + 새 메시지
     const historyForLLM = [...chatHistory.slice(-14), { role: "user", content: text }];
-    const systemPrompt = buildSystemPrompt(activeAgent, orders);
+    const systemPrompt = buildSystemPrompt(activeAgent, orders, products);
     const fullPrompt = `${systemPrompt}
 
 대화 내역:
