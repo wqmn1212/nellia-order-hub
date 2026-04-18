@@ -5,6 +5,7 @@ import { Package, Clock, Truck, CheckCircle2 } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import ChannelBreakdown from "@/components/dashboard/ChannelBreakdown";
 import RecentOrders from "@/components/dashboard/RecentOrders";
+import AiOrderAnalysis from "@/components/dashboard/AiOrderAnalysis";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 
@@ -43,7 +44,7 @@ export default function Dashboard() {
       </div>
 
       {/* Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
         <div className="lg:col-span-3">
           <RecentOrders orders={orders} />
         </div>
@@ -51,6 +52,9 @@ export default function Dashboard() {
           <ChannelBreakdown orders={orders} />
         </div>
       </div>
+
+      {/* AI 주문 분석 */}
+      <AiOrderAnalysis orders={orders} />
     </div>
   );
 }
