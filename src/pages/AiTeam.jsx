@@ -4,7 +4,8 @@ import { base44 } from "@/api/base44Client";
 import AgentCard, { AGENTS } from "@/components/ai/AgentCard";
 import ChatBubble from "@/components/ai/ChatBubble";
 import ChatInput from "@/components/ai/ChatInput";
-import { Loader2 } from "lucide-react";
+import TeamMeeting from "@/components/ai/TeamMeeting";
+import { Loader2, MessageSquare, Users } from "lucide-react";
 
 const SESSION_ID = `session_${Date.now()}`;
 
@@ -55,6 +56,7 @@ export default function AiTeam() {
     cs: [{ role: "assistant", content: WELCOME_MESSAGES.cs }],
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState("chat"); // "chat" | "meeting"
   const messagesEndRef = useRef(null);
 
   const { data: orders = [] } = useQuery({
@@ -128,43 +130,75 @@ ${historyForLLM.map((m) => `${m.role === "user" ? "사용자" : "AI"}: ${m.conte
         </div>
       </div>
 
-      {/* 채팅 영역 */}
+      {/* 오른쪽 영역 */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* 헤더 */}
-        <div className="px-6 py-4 border-b border-border bg-card/80 backdrop-blur-sm flex items-center gap-4">
-          <div className="w-11 h-11 rounded-full bg-white border border-border flex items-center justify-center text-2xl shadow-sm">
-            {agent.emoji}
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">{agent.name}</p>
-            <p className="text-xs text-muted-foreground">{agent.title} · 현재 주문 {orders.length}건 인지 중</p>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-xs text-emerald-600 font-medium">온라인</span>
-          </div>
-        </div>
+        {/* 탭 헤더 */}
+        <div className="flex border-b border-border bg-card/80 backdrop-blur-sm">
+          <button
+            onClick={() => setMode("chat")}
+            className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              mode === "chat"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <MessageSquare className="w-4 h-4" />
+            1:1 대화
+          </button>
+          <button
+            onClick={() => setMode("meeting")}
+            className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              mode === "meeting"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            팀 미팅
+            <span className="text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold">NEW</span>
+          </button>
 
-        {/* 메시지 영역 */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
-          {messages.map((msg, i) => (
-            <ChatBubble key={i} message={msg} agentKey={activeAgent} />
-          ))}
-          {isLoading && (
-            <div className="flex gap-3">
-              <div className="w-9 h-9 rounded-full bg-white border border-border flex items-center justify-center text-lg shadow-sm">
+          {mode === "chat" && (
+            <div className="ml-auto flex items-center gap-3 px-6">
+              <div className="w-8 h-8 rounded-full bg-white border border-border flex items-center justify-center text-lg shadow-sm">
                 {agent.emoji}
               </div>
-              <div className={`px-4 py-3 rounded-2xl rounded-tl-sm border border-border/50 ${agent.bubbleColor}`}>
-                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              <div>
+                <p className="text-sm font-semibold text-foreground leading-none">{agent.name}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{agent.title}</p>
+              </div>
+              <div className="flex items-center gap-1.5 ml-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-[10px] text-emerald-600 font-medium">온라인</span>
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} />
         </div>
 
-        {/* 입력창 */}
-        <ChatInput onSend={handleSend} isLoading={isLoading} agentKey={activeAgent} />
+        {mode === "chat" ? (
+          <>
+            {/* 메시지 영역 */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+              {messages.map((msg, i) => (
+                <ChatBubble key={i} message={msg} agentKey={activeAgent} />
+              ))}
+              {isLoading && (
+                <div className="flex gap-3">
+                  <div className="w-9 h-9 rounded-full bg-white border border-border flex items-center justify-center text-lg shadow-sm">
+                    {agent.emoji}
+                  </div>
+                  <div className={`px-4 py-3 rounded-2xl rounded-tl-sm border border-border/50 ${agent.bubbleColor}`}>
+                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+            <ChatInput onSend={handleSend} isLoading={isLoading} agentKey={activeAgent} />
+          </>
+        ) : (
+          <TeamMeeting orders={orders} />
+        )}
       </div>
     </div>
   );
