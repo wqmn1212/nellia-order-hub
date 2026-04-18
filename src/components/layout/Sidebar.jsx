@@ -17,7 +17,7 @@ export default function Sidebar() {
   const location = useLocation();
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/50 backdrop-blur-sm h-screen sticky top-0">
+    <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/50 backdrop-blur-sm h-screen sticky top-0 min-h-0">
       <div className="px-7 py-8 border-b border-border">
         <Link to="/" className="flex flex-col">
           <span className="font-serif text-3xl tracking-tight text-primary">Nellia</span>
@@ -25,7 +25,7 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-1">
+      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
         {NAV.map((item) => {
           const active = item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to);
           const Icon = item.icon;
