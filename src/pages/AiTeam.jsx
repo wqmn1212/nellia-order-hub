@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import AgentCard, { AGENTS } from "@/components/ai/AgentCard";
 import ChatBubble from "@/components/ai/ChatBubble";
 import ChatInput from "@/components/ai/ChatInput";
 import TeamMeeting from "@/components/ai/TeamMeeting";
 import { Loader2, MessageSquare, Users } from "lucide-react";
-
-const SESSION_ID = `session_${Date.now()}`;
 
 const WELCOME_MESSAGES = {
   coo: "안녕하세요! 저는 넬리아의 COO AI입니다. ⚙️\n\n주문 처리 현황, 물류 최적화, 운영 프로세스 개선 등 어떤 것이든 도와드릴게요. 지금 어떤 운영 이슈가 있으신가요?",
@@ -48,16 +46,10 @@ function buildSystemPrompt(agentKey, orders) {
 
 export default function AiTeam() {
   const [activeAgent, setActiveAgent] = useState("cmo");
-  const [conversations, setConversations] = useState({
-    coo: [{ role: "assistant", content: WELCOME_MESSAGES.coo }],
-    cmo: [{ role: "assistant", content: WELCOME_MESSAGES.cmo }],
-    cfo: [{ role: "assistant", content: WELCOME_MESSAGES.cfo }],
-    cdo: [{ role: "assistant", content: WELCOME_MESSAGES.cdo }],
-    cs: [{ role: "assistant", content: WELCOME_MESSAGES.cs }],
-  });
   const [isLoading, setIsLoading] = useState(false);
-  const [mode, setMode] = useState("chat"); // "chat" | "meeting"
+  const [mode, setMode] = useState("chat");
   const messagesEndRef = useRef(null);
+  const queryClient = useQueryClient();
 
   const { data: orders = [] } = useQuery({
     queryKey: ["orders"],
@@ -65,27 +57,34 @@ export default function AiTeam() {
     initialData: [],
   });
 
-  const messages = conversations[activeAgent] || [];
+  // 현재 에이전트의 채팅 기록 로드
+  const { data: chatHistory = [], isLoading: isLoadingChat } = useQuery({
+    queryKey: ["aiChat", activeAgent],
+    queryFn: () => base44.entities.AiChat.filter({ agent: activeAgent }, "created_date", 200),
+  });
+
+  // 저장된 메시지가 없으면 환영 메시지 표시
+  const messages = chatHistory.length > 0
+    ? chatHistory
+    : [{ role: "assistant", content: WELCOME_MESSAGES[activeAgent] }];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, activeAgent]);
+  }, [chatHistory, activeAgent]);
+
+  const saveMutation = useMutation({
+    mutationFn: (msg) => base44.entities.AiChat.create(msg),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["aiChat", activeAgent] }),
+  });
 
   const handleSend = async (text) => {
-    const userMsg = { role: "user", content: text };
-    const updatedMessages = [...messages, userMsg];
-
-    setConversations((prev) => ({
-      ...prev,
-      [activeAgent]: updatedMessages,
-    }));
     setIsLoading(true);
 
-    const historyForLLM = updatedMessages.slice(-10).map((m) => ({
-      role: m.role,
-      content: m.content,
-    }));
+    // 사용자 메시지 저장
+    await saveMutation.mutateAsync({ agent: activeAgent, role: "user", content: text, session_id: activeAgent });
 
+    // LLM 컨텍스트: DB 기록 + 새 메시지
+    const historyForLLM = [...chatHistory.slice(-14), { role: "user", content: text }];
     const systemPrompt = buildSystemPrompt(activeAgent, orders);
     const fullPrompt = `${systemPrompt}
 
@@ -96,11 +95,8 @@ ${historyForLLM.map((m) => `${m.role === "user" ? "사용자" : "AI"}: ${m.conte
 
     const response = await base44.integrations.Core.InvokeLLM({ prompt: fullPrompt });
 
-    const assistantMsg = { role: "assistant", content: response };
-    setConversations((prev) => ({
-      ...prev,
-      [activeAgent]: [...prev[activeAgent], assistantMsg],
-    }));
+    // AI 응답 저장
+    await saveMutation.mutateAsync({ agent: activeAgent, role: "assistant", content: response, session_id: activeAgent });
     setIsLoading(false);
   };
 
@@ -179,8 +175,13 @@ ${historyForLLM.map((m) => `${m.role === "user" ? "사용자" : "AI"}: ${m.conte
           <>
             {/* 메시지 영역 */}
             <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
-              {messages.map((msg, i) => (
-                <ChatBubble key={i} message={msg} agentKey={activeAgent} />
+              {isLoadingChat && (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                </div>
+              )}
+              {!isLoadingChat && messages.map((msg, i) => (
+                <ChatBubble key={msg.id || i} message={msg} agentKey={activeAgent} />
               ))}
               {isLoading && (
                 <div className="flex gap-3">
