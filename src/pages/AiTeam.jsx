@@ -31,6 +31,28 @@ function buildProductContext(products) {
     .join("\n\n");
 }
 
+const AGENT_PRODUCT_INSTRUCTIONS = {
+  cs: `
+- 고객이 제품 문의를 하면 제품 DB의 스펙, 가격, 특징, 타겟 정보를 바탕으로 정확하게 답변하세요.
+- 고객의 니즈(두피 타입, 헤어 타입, 예산 등)를 파악하여 가장 적합한 제품을 추천하세요.
+- 제품 비교 시 스펙 수치(무게, 풍속, 온도 등)를 구체적으로 언급하세요.
+- 가격은 정확한 숫자로 안내하고, 제품의 타겟 고객층과 연결지어 설명하세요.
+- 스펙이나 가격이 DB에 없는 경우 "확인이 필요합니다"라고 솔직하게 답변하세요.`,
+  cmo: `
+- 마케팅 콘텐츠 기획 시 제품 DB의 특징, 타겟 고객층을 적극 활용하세요.
+- 각 제품의 셀링 포인트(features)를 SNS 콘텐츠 아이디어와 연결하세요.
+- 제품 가격대를 고려한 타겟 마케팅 전략을 제안하세요.`,
+  cfo: `
+- 제품별 가격 데이터를 활용하여 수익성 분석에 반영하세요.
+- 제품 DB의 가격 정보와 주문 데이터를 교차 분석하여 인사이트를 제공하세요.`,
+  cdo: `
+- 제품 DB 데이터와 주문 데이터를 연계하여 어떤 제품이 인기 있는지 분석하세요.
+- 제품별 판매 패턴과 고객 행동 데이터를 종합하여 인사이트를 제공하세요.`,
+  coo: `
+- 제품 DB를 참고하여 재고 및 물류 운영 최적화 방안을 제안하세요.
+- 제품 스펙(무게 등)을 포장·배송 효율화에 활용하세요.`,
+};
+
 function buildSystemPrompt(agentKey, orders, products = []) {
   const agent = AGENTS[agentKey];
   const totalOrders = orders.length;
@@ -38,12 +60,13 @@ function buildSystemPrompt(agentKey, orders, products = []) {
   const shippedOrders = orders.filter((o) => o.status === "shipped").length;
   const totalRevenue = orders.reduce((sum, o) => sum + (o.price || 0), 0);
   const channels = [...new Set(orders.map((o) => o.channel))];
+  const activeProducts = products.filter((p) => p.is_active !== false);
 
   return `당신은 넬리아(Nellia) 뷰티/헤어케어 브랜드의 ${agent.title}(${agent.short}) AI 직원입니다.
 이름: ${agent.name}
 역할: ${agent.personality}
 
-=== 넬리아 제품 DB ===
+=== 넬리아 제품 DB (${activeProducts.length}개 활성 제품) ===
 ${buildProductContext(products)}
 
 === CRM 데이터 요약 ===
@@ -55,13 +78,14 @@ ${buildProductContext(products)}
 
 소셜 미디어 채널: 인스타그램, 유튜브, 틱톡, X(트위터), 쓰레드(Threads)
 
-지침:
+=== 지침 ===
 - 한국어로 답변하세요.
 - 넬리아의 ${agent.short}로서 역할에 맞는 전문적인 조언을 제공하세요.
-- 제품 DB의 스펙, 특징, 타겟 정보를 적극 활용하여 구체적인 인사이트를 제공하세요.
+- 위 제품 DB에 등록된 제품 정보(스펙, 가격, 특징, 타겟)를 반드시 참고하여 답변하세요.
 - CRM 데이터를 함께 참고하여 답변하세요.
 - 답변은 명확하고 실행 가능한 조언 위주로 작성하세요.
-- 이모지를 자연스럽게 활용하여 친근감을 유지하세요.`;
+- 이모지를 자연스럽게 활용하여 친근감을 유지하세요.
+${AGENT_PRODUCT_INSTRUCTIONS[agentKey] || ""}`;
 }
 
 export default function AiTeam() {
