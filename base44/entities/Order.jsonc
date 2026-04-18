@@ -1,0 +1,108 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "order_number": {
+      "type": "string",
+      "description": "\uc8fc\ubb38 \ubc88\ud638 (\ud50c\ub7ab\ud3fc\uc5d0\uc11c \ubc1b\uc740 \ubc88\ud638)"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "coupang",
+        "naver",
+        "wadiz",
+        "toss",
+        "kakao",
+        "self_mall",
+        "other"
+      ],
+      "description": "\ud310\ub9e4 \ucc44\ub110"
+    },
+    "order_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\uc8fc\ubb38\uc77c"
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "\uc218\ub839\uc778 \uc774\ub984"
+    },
+    "customer_phone": {
+      "type": "string",
+      "description": "\uc218\ub839\uc778 \uc5f0\ub77d\ucc98"
+    },
+    "customer_address": {
+      "type": "string",
+      "description": "\ubc30\uc1a1\uc9c0 \uc8fc\uc18c"
+    },
+    "customer_zipcode": {
+      "type": "string",
+      "description": "\uc6b0\ud3b8\ubc88\ud638"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "\uc0c1\ud488\uba85"
+    },
+    "product_option": {
+      "type": "string",
+      "description": "\uc0c1\ud488 \uc635\uc158"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1,
+      "description": "\uc218\ub7c9"
+    },
+    "price": {
+      "type": "number",
+      "description": "\uacb0\uc81c \uae08\uc561"
+    },
+    "delivery_memo": {
+      "type": "string",
+      "description": "\ubc30\uc1a1 \uba54\ubaa8"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "preparing",
+        "shipped",
+        "delivered",
+        "cancelled"
+      ],
+      "default": "new",
+      "description": "\uc8fc\ubb38 \uc0c1\ud0dc"
+    },
+    "courier": {
+      "type": "string",
+      "enum": [
+        "cj",
+        "hanjin",
+        "lotte",
+        "logen",
+        "post",
+        "kunyoung",
+        "other"
+      ],
+      "description": "\ud0dd\ubc30\uc0ac"
+    },
+    "tracking_number": {
+      "type": "string",
+      "description": "\uc1a1\uc7a5 \ubc88\ud638"
+    },
+    "shipped_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\ucd9c\uace0 \uc77c\uc2dc"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\ub0b4\ubd80 \uba54\ubaa8"
+    }
+  },
+  "required": [
+    "channel",
+    "customer_name",
+    "product_name"
+  ]
+}
