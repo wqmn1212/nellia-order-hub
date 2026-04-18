@@ -1,0 +1,39 @@
+{
+  "name": "AiChat",
+  "type": "object",
+  "properties": {
+    "agent": {
+      "type": "string",
+      "enum": [
+        "coo",
+        "cmo",
+        "cfo",
+        "cdo",
+        "cs"
+      ],
+      "description": "AI \uc9c1\uc6d0 \uc5ed\ud560"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "user",
+        "assistant"
+      ],
+      "description": "\uba54\uc2dc\uc9c0 \ubc1c\uc2e0\uc790"
+    },
+    "content": {
+      "type": "string",
+      "description": "\uba54\uc2dc\uc9c0 \ub0b4\uc6a9"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "\ub300\ud654 \uc138\uc158 ID"
+    }
+  },
+  "required": [
+    "agent",
+    "role",
+    "content",
+    "session_id"
+  ]
+}
