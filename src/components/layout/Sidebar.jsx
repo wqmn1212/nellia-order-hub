@@ -1,12 +1,13 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, Truck, Upload, Settings } from "lucide-react";
+import { LayoutDashboard, Package, Truck, Upload, Settings, Plug } from "lucide-react";
 
 const NAV = [
   { to: "/", label: "대시보드", icon: LayoutDashboard },
   { to: "/orders", label: "주문 관리", icon: Package },
   { to: "/shipping", label: "송장 출력", icon: Truck },
   { to: "/upload", label: "주문 업로드", icon: Upload },
+  { to: "/api-settings", label: "API 연동 설정", icon: Plug },
 ];
 
 export default function Sidebar() {

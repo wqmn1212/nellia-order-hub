@@ -11,6 +11,7 @@ import Orders from '@/pages/Orders';
 import OrderDetail from '@/pages/OrderDetail';
 import Shipping from '@/pages/Shipping';
 import Upload from '@/pages/Upload';
+import ApiSettings from '@/pages/ApiSettings';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -44,6 +45,7 @@ const AuthenticatedApp = () => {
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/shipping" element={<Shipping />} />
         <Route path="/upload" element={<Upload />} />
+        <Route path="/api-settings" element={<ApiSettings />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

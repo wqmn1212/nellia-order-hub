@@ -1,0 +1,54 @@
+{
+  "name": "ApiConfig",
+  "type": "object",
+  "properties": {
+    "channel": {
+      "type": "string",
+      "enum": [
+        "coupang",
+        "naver"
+      ],
+      "description": "\ud310\ub9e4 \ucc44\ub110"
+    },
+    "access_key": {
+      "type": "string",
+      "description": "Access Key / Client ID"
+    },
+    "secret_key": {
+      "type": "string",
+      "description": "Secret Key / Client Secret"
+    },
+    "vendor_id": {
+      "type": "string",
+      "description": "\ucfe0\ud321 Vendor ID (\ucfe0\ud321 \uc804\uc6a9)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false,
+      "description": "\uc5f0\ub3d9 \ud65c\uc131\ud654 \uc5ec\ubd80"
+    },
+    "last_synced_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\ub9c8\uc9c0\ub9c9 \ub3d9\uae30\ud654 \uc2dc\uac01"
+    },
+    "sync_status": {
+      "type": "string",
+      "enum": [
+        "idle",
+        "syncing",
+        "success",
+        "error"
+      ],
+      "default": "idle",
+      "description": "\ub3d9\uae30\ud654 \uc0c1\ud0dc"
+    },
+    "sync_error": {
+      "type": "string",
+      "description": "\uc624\ub958 \uba54\uc2dc\uc9c0"
+    }
+  },
+  "required": [
+    "channel"
+  ]
+}
