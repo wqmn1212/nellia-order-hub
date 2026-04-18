@@ -13,6 +13,7 @@ import Shipping from '@/pages/Shipping';
 import Upload from '@/pages/Upload';
 import ApiSettings from '@/pages/ApiSettings';
 import AiTeam from '@/pages/AiTeam';
+import Analytics from '@/pages/Analytics';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -48,6 +49,7 @@ const AuthenticatedApp = () => {
         <Route path="/upload" element={<Upload />} />
         <Route path="/api-settings" element={<ApiSettings />} />
         <Route path="/ai-team" element={<AiTeam />} />
+        <Route path="/analytics" element={<Analytics />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
