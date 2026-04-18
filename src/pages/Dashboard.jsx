@@ -6,6 +6,7 @@ import StatsCard from "@/components/dashboard/StatsCard";
 import ChannelBreakdown from "@/components/dashboard/ChannelBreakdown";
 import RecentOrders from "@/components/dashboard/RecentOrders";
 import AiOrderAnalysis from "@/components/dashboard/AiOrderAnalysis";
+import StockAlert from "@/components/dashboard/StockAlert";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 
@@ -34,6 +35,9 @@ export default function Dashboard() {
         </h1>
         <p className="text-muted-foreground mt-2">오늘의 주문 현황을 한눈에 확인하세요</p>
       </div>
+
+      {/* 재고 부족 알림 */}
+      <StockAlert />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

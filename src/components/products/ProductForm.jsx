@@ -27,6 +27,8 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
     features: product?.features || "",
     target_audience: product?.target_audience || "",
     is_active: product?.is_active ?? true,
+    stock_quantity: product?.stock_quantity ?? "",
+    stock_alert_threshold: product?.stock_alert_threshold ?? 10,
   });
   const [uploading, setUploading] = useState(false);
 
@@ -43,7 +45,12 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...form, price: form.price ? Number(form.price) : undefined });
+    onSubmit({
+      ...form,
+      price: form.price ? Number(form.price) : undefined,
+      stock_quantity: form.stock_quantity !== "" ? Number(form.stock_quantity) : undefined,
+      stock_alert_threshold: form.stock_alert_threshold ? Number(form.stock_alert_threshold) : 10,
+    });
   };
 
   return (
@@ -118,6 +125,18 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
       <div className="space-y-1.5">
         <Label>타겟 고객층</Label>
         <Input value={form.target_audience} onChange={(e) => set("target_audience", e.target.value)} placeholder="예: 20-40대 여성, 볼륨 케어에 관심 있는 고객" />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+        <div className="space-y-1.5">
+          <Label>현재 재고 수량</Label>
+          <Input type="number" min="0" value={form.stock_quantity} onChange={(e) => set("stock_quantity", e.target.value)} placeholder="예: 50" />
+        </div>
+        <div className="space-y-1.5">
+          <Label>재고 알림 기준 수량</Label>
+          <Input type="number" min="0" value={form.stock_alert_threshold} onChange={(e) => set("stock_alert_threshold", e.target.value)} placeholder="기본: 10" />
+          <p className="text-[11px] text-muted-foreground">이 수량 이하면 대시보드에 긴급 알림이 표시됩니다</p>
+        </div>
       </div>
 
       <div className="flex justify-end gap-3 pt-2">
