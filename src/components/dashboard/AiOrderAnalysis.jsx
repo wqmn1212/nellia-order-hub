@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Loader2, AlertTriangle, MessageSquare, RefreshCw } from "lucide-react";
+import UrgentOrderActions from "./UrgentOrderActions";
 
 const URGENCY_STYLE = {
   긴급: "bg-red-100 text-red-700 border-red-200",
@@ -18,7 +19,7 @@ const INQUIRY_STYLE = {
   일반: "bg-gray-100 text-gray-600",
 };
 
-export default function AiOrderAnalysis({ orders }) {
+export default function AiOrderAnalysis({ orders = [] }) {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -198,6 +199,9 @@ ${JSON.stringify(orderSummaries, null, 2)}
               </div>
             ))}
           </div>
+
+          {/* 긴급 주문 액션 패널 */}
+          <UrgentOrderActions analysisOrders={result.orders || []} rawOrders={orders} />
         </div>
       )}
     </Card>
