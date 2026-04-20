@@ -27,7 +27,14 @@
     },
     "image_url": {
       "type": "string",
-      "description": "\uc81c\ud488 \uc774\ubbf8\uc9c0 URL"
+      "description": "\ub300\ud45c \uc81c\ud488 \uc774\ubbf8\uc9c0 URL"
+    },
+    "image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "\ucd94\uac00 \uc81c\ud488 \uc774\ubbf8\uc9c0 URL \ubaa9\ub85d (\ucd5c\ub300 20\uac1c)"
     },
     "short_description": {
       "type": "string",

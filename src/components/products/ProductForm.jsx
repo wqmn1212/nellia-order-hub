@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, X, ImagePlus } from "lucide-react";
 
 const CATEGORIES = {
   hair_dryer: "헤어드라이어",
@@ -21,7 +21,6 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
     model_number: product?.model_number || "",
     category: product?.category || "hair_dryer",
     price: product?.price || "",
-    image_url: product?.image_url || "",
     short_description: product?.short_description || "",
     specs: product?.specs || "",
     features: product?.features || "",
@@ -30,18 +29,35 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
     stock_quantity: product?.stock_quantity ?? "",
     stock_alert_threshold: product?.stock_alert_threshold ?? 10,
   });
-  const [uploading, setUploading] = useState(false);
+
+  // 이미지 목록: 기존 image_url(대표) + image_urls 배열 통합
+  const initImages = () => {
+    const urls = product?.image_urls || [];
+    if (product?.image_url && !urls.includes(product.image_url)) {
+      return [product.image_url, ...urls];
+    }
+    return [...urls];
+  };
+  const [images, setImages] = useState(initImages);
+  const [uploadingCount, setUploadingCount] = useState(0);
 
   const set = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    set("image_url", file_url);
-    setUploading(false);
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const remaining = 20 - images.length;
+    const toUpload = files.slice(0, remaining);
+    setUploadingCount(toUpload.length);
+    const results = await Promise.all(
+      toUpload.map((file) => base44.integrations.Core.UploadFile({ file }))
+    );
+    setImages((prev) => [...prev, ...results.map((r) => r.file_url)]);
+    setUploadingCount(0);
+    e.target.value = "";
   };
+
+  const removeImage = (idx) => setImages((prev) => prev.filter((_, i) => i !== idx));
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,6 +66,8 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
       price: form.price ? Number(form.price) : undefined,
       stock_quantity: form.stock_quantity !== "" ? Number(form.stock_quantity) : undefined,
       stock_alert_threshold: form.stock_alert_threshold ? Number(form.stock_alert_threshold) : 10,
+      image_url: images[0] || "",
+      image_urls: images,
     });
   };
 
@@ -81,20 +99,55 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
         </div>
       </div>
 
-      {/* 이미지 업로드 */}
-      <div className="space-y-1.5">
-        <Label>제품 이미지</Label>
-        <div className="flex items-center gap-3">
-          <label className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-border hover:bg-secondary transition-colors text-sm text-muted-foreground">
-            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-            {uploading ? "업로드 중..." : "이미지 업로드"}
-            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-          </label>
-          {form.image_url && (
-            <img src={form.image_url} alt="preview" className="w-14 h-14 object-cover rounded-lg border border-border" />
+      {/* 이미지 업로드 (최대 20개) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label>제품 이미지 <span className="text-muted-foreground font-normal">(최대 20개)</span></Label>
+          <span className="text-xs text-muted-foreground">{images.length} / 20</span>
+        </div>
+
+        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+          {images.map((url, idx) => (
+            <div key={idx} className="relative group aspect-square">
+              <img src={url} alt={`이미지 ${idx + 1}`} className="w-full h-full object-cover rounded-lg border border-border" />
+              {idx === 0 && (
+                <span className="absolute bottom-0 left-0 right-0 text-[9px] text-center bg-primary/80 text-primary-foreground rounded-b-lg py-0.5">대표</span>
+              )}
+              <button
+                type="button"
+                onClick={() => removeImage(idx)}
+                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+
+          {images.length < 20 && (
+            <label className="aspect-square cursor-pointer flex flex-col items-center justify-center rounded-lg border border-dashed border-border hover:bg-secondary transition-colors text-muted-foreground">
+              {uploadingCount > 0 ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin mb-1" />
+                  <span className="text-[10px]">{uploadingCount}개 중...</span>
+                </>
+              ) : (
+                <>
+                  <ImagePlus className="w-5 h-5 mb-1" />
+                  <span className="text-[10px]">추가</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleImageUpload}
+                disabled={uploadingCount > 0}
+              />
+            </label>
           )}
         </div>
-        <Input value={form.image_url} onChange={(e) => set("image_url", e.target.value)} placeholder="또는 이미지 URL 직접 입력" className="mt-1" />
+        <p className="text-[11px] text-muted-foreground">첫 번째 이미지가 대표 이미지로 사용됩니다. 여러 파일을 한 번에 선택할 수 있습니다.</p>
       </div>
 
       <div className="space-y-1.5">
