@@ -194,7 +194,7 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
 
       <div className="flex justify-end gap-3 pt-2">
         <Button type="button" variant="outline" onClick={onCancel}>취소</Button>
-        <Button type="submit" disabled={isLoading || uploading}>
+        <Button type="submit" disabled={isLoading || uploadingCount > 0}>
           {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
           {product ? "수정 저장" : "제품 등록"}
         </Button>
