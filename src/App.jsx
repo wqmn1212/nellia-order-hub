@@ -16,6 +16,7 @@ import ApiSettings from '@/pages/ApiSettings';
 import AiTeam from '@/pages/AiTeam';
 import Analytics from '@/pages/Analytics';
 import Products from '@/pages/Products';
+import MarketingKpi from '@/pages/MarketingKpi';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
         <Route path="/ai-team" element={<AiTeam />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/marketing-kpi" element={<MarketingKpi />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

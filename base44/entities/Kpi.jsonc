@@ -1,0 +1,51 @@
+{
+  "name": "Kpi",
+  "type": "object",
+  "properties": {
+    "team": {
+      "type": "string",
+      "enum": [
+        "marketing",
+        "logistics",
+        "customer_support",
+        "sales",
+        "admin"
+      ],
+      "description": "KPI\uac00 \uc18d\ud55c \ud300"
+    },
+    "metric_name": {
+      "type": "string",
+      "description": "KPI \uc9c0\ud45c\uba85"
+    },
+    "metric_key": {
+      "type": "string",
+      "description": "\uc9c0\ud45c \uc2dd\ubcc4 \ud0a4 (\uc608: new_customers, roas, conversion_rate)"
+    },
+    "target_value": {
+      "type": "number",
+      "description": "\ubaa9\ud45c \uac12"
+    },
+    "current_value": {
+      "type": "number",
+      "description": "\ud604\uc7ac \ub2ec\uc131 \uac12"
+    },
+    "unit": {
+      "type": "string",
+      "description": "\uc9c0\ud45c \ub2e8\uc704 (\uc608: \uba85, %, \uc6d0, \ubc30)"
+    },
+    "period": {
+      "type": "string",
+      "description": "\uce21\uc815 \uae30\uac04 (YYYY-MM)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\ube44\uace0"
+    }
+  },
+  "required": [
+    "team",
+    "metric_name",
+    "target_value",
+    "period"
+  ]
+}
