@@ -2,13 +2,14 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Package } from "lucide-react";
 import ChannelBadge from "@/components/shared/ChannelBadge";
-import StatusBadge from "@/components/shared/StatusBadge";
+import { STATUSES } from "@/components/shared/constants";
 
-export default function OrderTable({ orders, selected, onToggleSelect, onToggleAll }) {
+export default function OrderTable({ orders, selected, onToggleSelect, onToggleAll, onStatusChange }) {
   const allSelected = orders.length > 0 && selected.length === orders.length;
 
   if (orders.length === 0) {
@@ -69,7 +70,21 @@ export default function OrderTable({ orders, selected, onToggleSelect, onToggleA
                 <td className="px-3 py-4 text-right tabular-nums font-medium text-foreground whitespace-nowrap">
                   {order.price ? `₩${order.price.toLocaleString()}` : "-"}
                 </td>
-                <td className="px-3 py-4"><StatusBadge status={order.status} /></td>
+                <td className="px-3 py-4" onClick={(e) => e.stopPropagation()}>
+                  <Select
+                    value={order.status || "new"}
+                    onValueChange={(value) => onStatusChange(order.id, value)}
+                  >
+                    <SelectTrigger className={`h-7 text-xs border px-2.5 py-1 rounded-full w-28 ${STATUSES[order.status]?.color || STATUSES.new.color}`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(STATUSES).map(([key, val]) => (
+                        <SelectItem key={key} value={key} className="text-xs">{val.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </td>
                 <td className="px-3 py-4 font-mono text-xs text-muted-foreground whitespace-nowrap">
                   {order.tracking_number || <span className="text-muted-foreground/50">미입력</span>}
                 </td>

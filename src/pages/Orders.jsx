@@ -103,6 +103,7 @@ export default function Orders() {
         selected={selected}
         onToggleSelect={toggleSelect}
         onToggleAll={toggleAll}
+        onStatusChange={(id, status) => updateMutation.mutate({ id, data: { status } })}
       />
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
