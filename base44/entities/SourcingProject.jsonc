@@ -1,0 +1,85 @@
+{
+  "name": "SourcingProject",
+  "type": "object",
+  "properties": {
+    "product_name": {
+      "type": "string",
+      "description": "\uc81c\ud488\uba85"
+    },
+    "product_type": {
+      "type": "string",
+      "description": "\uc81c\ud488 \uc885\ub958 (\uc608: \ub3c4\ub11b \ube57, \ub4dc\ub77c\uc774\uae30)"
+    },
+    "current_stage": {
+      "type": "string",
+      "enum": [
+        "sketch",
+        "3d_print",
+        "t1_sample",
+        "mold_fix",
+        "mass_production",
+        "completed"
+      ],
+      "default": "sketch",
+      "description": "\ud604\uc7ac QC \ub2e8\uacc4"
+    },
+    "target_qty": {
+      "type": "number",
+      "description": "\ubaa9\ud45c \uc0dd\uc0b0 \uc218\ub7c9"
+    },
+    "factory_name": {
+      "type": "string",
+      "description": "\uacf5\uc7a5/\uc5c5\uccb4\uba85"
+    },
+    "factory_country": {
+      "type": "string",
+      "default": "\uc911\uad6d",
+      "description": "\uc0dd\uc0b0\uad6d"
+    },
+    "specs": {
+      "type": "string",
+      "description": "\uc81c\ud488 \uc0ac\uc591 (\uc18c\uc7ac, \uce58\uc218, \ucf54\ud305 \ub4f1)"
+    },
+    "rfq_content": {
+      "type": "string",
+      "description": "\uc0dd\uc131\ub41c RFQ \ub0b4\uc6a9 (\uc601\ubb38)"
+    },
+    "stage_logs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "approved",
+              "revision"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "\ub2e8\uacc4\ubcc4 \uc774\ub825"
+    },
+    "target_launch_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "product_name"
+  ]
+}

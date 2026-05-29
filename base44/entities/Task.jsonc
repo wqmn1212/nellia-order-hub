@@ -1,0 +1,69 @@
+{
+  "name": "Task",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "\uc5c5\ubb34 \uc81c\ubaa9"
+    },
+    "description": {
+      "type": "string",
+      "description": "\uc5c5\ubb34 \uc0c1\uc138 \ub0b4\uc6a9"
+    },
+    "assignee": {
+      "type": "string",
+      "enum": [
+        "ceo",
+        "designer",
+        "marketer",
+        "logistics"
+      ],
+      "description": "\ub2f4\ub2f9\uc790"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "todo",
+        "in_progress",
+        "done",
+        "blocked"
+      ],
+      "default": "todo",
+      "description": "\uc5c5\ubb34 \uc0c1\ud0dc"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\ub9c8\uac10\uc77c"
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "\uc120\ud589 \uc5c5\ubb34 ID \ubaa9\ub85d"
+    },
+    "milestone": {
+      "type": "string",
+      "description": "\ub9c8\uc77c\uc2a4\ud1a4 (\uc608: D-30, \uc640\ub514\uc988 \uc624\ud508)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\uba54\ubaa8"
+    }
+  },
+  "required": [
+    "title",
+    "assignee"
+  ]
+}

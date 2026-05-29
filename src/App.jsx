@@ -17,6 +17,8 @@ import AiTeam from '@/pages/AiTeam';
 import Analytics from '@/pages/Analytics';
 import Products from '@/pages/Products';
 import MarketingKpi from '@/pages/MarketingKpi';
+import TeamCalendar from '@/pages/TeamCalendar';
+import Sourcing from '@/pages/Sourcing';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -72,6 +74,8 @@ const AuthenticatedApp = () => {
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/products" element={<Products />} />
         <Route path="/marketing-kpi" element={<MarketingKpi />} />
+        <Route path="/calendar" element={<TeamCalendar />} />
+        <Route path="/sourcing" element={<Sourcing />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
