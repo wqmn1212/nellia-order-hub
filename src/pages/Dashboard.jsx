@@ -8,6 +8,7 @@ import RecentOrders from "@/components/dashboard/RecentOrders";
 import AiOrderAnalysis from "@/components/dashboard/AiOrderAnalysis";
 import StockAlert from "@/components/dashboard/StockAlert";
 import TaskFeed from "@/components/dashboard/TaskFeed";
+import RecentTaskUpdates from "@/components/dashboard/RecentTaskUpdates";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 
@@ -67,6 +68,9 @@ export default function Dashboard() {
           <AiOrderAnalysis orders={orders} />
         </div>
       </div>
+
+      {/* 최근 업무 업데이트 */}
+      <RecentTaskUpdates />
     </div>
   );
 }
