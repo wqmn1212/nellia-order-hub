@@ -58,6 +58,8 @@ export default function TeamCalendar() {
   const [filterAssignee, setFilterAssignee] = useState("all");
   const [form, setForm] = useState({ title: "", assignee: "", priority: "medium", due_date: "", start_time: "", end_time: "", milestone: "", description: "", status: "todo" });
   const [editingTask, setEditingTask] = useState(null);
+  const [dragTaskId, setDragTaskId] = useState(null);
+  const [dragOverDay, setDragOverDay] = useState(null);
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -136,6 +138,14 @@ export default function TeamCalendar() {
       status: task.status || "todo",
     });
     setShowForm(true);
+  };
+
+  const handleDrop = (day) => {
+    if (!dragTaskId) return;
+    const newDate = format(day, "yyyy-MM-dd");
+    updateTask.mutate({ id: dragTaskId, data: { due_date: newDate } });
+    setDragTaskId(null);
+    setDragOverDay(null);
   };
 
   const handleSubmit = () => {
@@ -219,9 +229,10 @@ export default function TeamCalendar() {
                   <div
                     key={key}
                     onClick={() => setSelectedDay(isSameDay(day, selectedDay) ? null : day)}
-                    className={`border-r border-b border-border/50 p-1.5 cursor-pointer transition-colors min-h-[100px] ${
-                      !isCurrentMonth ? "bg-muted/20" : "bg-background hover:bg-muted/30"
-                    } ${isSelected ? "ring-2 ring-inset ring-primary" : ""}`}
+                    onDragOver={(e) => { e.preventDefault(); setDragOverDay(key); }}
+                    onDragLeave={() => setDragOverDay(null)}
+                    onDrop={(e) => { e.preventDefault(); handleDrop(day); }}
+                    className={`border-r border-b border-border/50 p-1.5 cursor-pointer transition-colors min-h-[100px] ${dragOverDay === key ? "bg-primary/10 ring-2 ring-inset ring-primary/50" : !isCurrentMonth ? "bg-muted/20" : "bg-background hover:bg-muted/30"} ${isSelected ? "ring-2 ring-inset ring-primary" : ""}`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span
@@ -244,11 +255,14 @@ export default function TeamCalendar() {
                     </div>
                     <div className="space-y-0.5">
                       {dayTasks.slice(0, 3).map((t) => (
-                        <div
-                          key={t.id}
-                          className={`text-[11px] leading-tight rounded px-1.5 py-0.5 truncate flex items-center gap-1 ${ASSIGNEE_MAP[t.assignee]?.light || "bg-slate-100 text-slate-700"} ${t.status === "done" ? "opacity-50 line-through" : ""}`}
-                          title={t.title}
-                        >
+                       <div
+                         key={t.id}
+                         draggable
+                         onDragStart={(e) => { e.stopPropagation(); setDragTaskId(t.id); }}
+                         onDragEnd={() => { setDragTaskId(null); setDragOverDay(null); }}
+                         className={`text-[11px] leading-tight rounded px-1.5 py-0.5 truncate flex items-center gap-1 cursor-grab active:cursor-grabbing select-none ${ASSIGNEE_MAP[t.assignee]?.light || "bg-slate-100 text-slate-700"} ${t.status === "done" ? "opacity-50 line-through" : ""} ${dragTaskId === t.id ? "opacity-40" : ""}`}
+                         title={t.title}
+                       >
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${ASSIGNEE_MAP[t.assignee]?.chip || "bg-slate-400"}`} />
                           {t.start_time && <span className="opacity-70 shrink-0">{t.start_time}</span>}
                           <span className="truncate">{t.title}</span>
@@ -357,7 +371,12 @@ export default function TeamCalendar() {
               ) : (
                 tasksWithoutDate.map((task) => {
                   return (
-                    <div key={task.id} className={`bg-background border border-border rounded-lg p-3 space-y-1.5 ${task.status === "cancelled" ? "opacity-50" : ""}`}>
+                    <div
+                      key={task.id}
+                      draggable
+                      onDragStart={() => setDragTaskId(task.id)}
+                      onDragEnd={() => { setDragTaskId(null); setDragOverDay(null); }}
+                      className={`bg-background border border-border rounded-lg p-3 space-y-1.5 cursor-grab active:cursor-grabbing select-none ${task.status === "cancelled" ? "opacity-50" : ""} ${dragTaskId === task.id ? "opacity-40" : ""}`}>
                       <div className="flex items-start gap-2">
                         <p className={`text-xs font-medium leading-snug flex-1 ${task.status === "done" || task.status === "cancelled" ? "line-through text-muted-foreground" : ""}`}>
                           {task.title}
