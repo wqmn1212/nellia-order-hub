@@ -46,6 +46,14 @@
       "format": "date",
       "description": "\ub9c8\uac10\uc77c"
     },
+    "start_time": {
+      "type": "string",
+      "description": "\uc2dc\uc791 \uc2dc\uac04 (HH:MM)"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "\uc885\ub8cc \uc2dc\uac04 (HH:MM)"
+    },
     "depends_on": {
       "type": "array",
       "items": {

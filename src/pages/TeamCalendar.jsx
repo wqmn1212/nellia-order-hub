@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, ChevronLeft, ChevronRight, CheckCircle2, Clock, AlertCircle, Loader2, X, Trash2 } from "lucide-react";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths, subMonths, isSameMonth, isSameDay, isToday, parseISO } from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths, subMonths, isSameMonth, isSameDay, isToday } from "date-fns";
 import { ko } from "date-fns/locale";
 
 const ASSIGNEE_MAP = {
@@ -49,7 +49,7 @@ export default function TeamCalendar() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [filterAssignee, setFilterAssignee] = useState("all");
-  const [form, setForm] = useState({ title: "", assignee: "", priority: "medium", due_date: "", milestone: "", description: "", status: "todo" });
+  const [form, setForm] = useState({ title: "", assignee: "", priority: "medium", due_date: "", start_time: "", end_time: "", milestone: "", description: "", status: "todo" });
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -61,7 +61,7 @@ export default function TeamCalendar() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setShowForm(false);
-      setForm({ title: "", assignee: "", priority: "medium", due_date: selectedDay ? format(selectedDay, "yyyy-MM-dd") : "", milestone: "", description: "", status: "todo" });
+      setForm({ title: "", assignee: "", priority: "medium", due_date: selectedDay ? format(selectedDay, "yyyy-MM-dd") : "", start_time: "", end_time: "", milestone: "", description: "", status: "todo" });
     },
   });
 
@@ -80,7 +80,6 @@ export default function TeamCalendar() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   });
 
-  // 달력 셀 계산
   const calendarDays = useMemo(() => {
     const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 });
     const end = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 0 });
@@ -105,25 +104,21 @@ export default function TeamCalendar() {
   }, [filteredTasks]);
 
   const tasksWithoutDate = filteredTasks.filter((t) => !t.due_date);
+  const selectedDayTasks = selectedDay ? (tasksByDate[format(selectedDay, "yyyy-MM-dd")] || []) : [];
+  const STATUS_CYCLE = ["todo", "in_progress", "done", "blocked"];
 
-  const selectedDayTasks = selectedDay
-    ? (tasksByDate[format(selectedDay, "yyyy-MM-dd")] || [])
-    : [];
-
-  const openDayNew = (day) => {
+  const openNew = (day) => {
     setSelectedDay(day);
-    setForm({ title: "", assignee: "", priority: "medium", due_date: format(day, "yyyy-MM-dd"), milestone: "", description: "", status: "todo" });
+    setForm({ title: "", assignee: "", priority: "medium", due_date: format(day, "yyyy-MM-dd"), start_time: "", end_time: "", milestone: "", description: "", status: "todo" });
     setShowForm(true);
   };
-
-  const STATUS_CYCLE = ["todo", "in_progress", "done", "blocked"];
 
   return (
     <div className="flex h-[calc(100vh-0px)] overflow-hidden bg-background">
       {/* 메인 캘린더 영역 */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* 헤더 */}
-        <div className="px-6 py-4 border-b border-border flex items-center gap-4 bg-card/60 backdrop-blur-sm shrink-0">
+        <div className="px-6 py-4 border-b border-border flex items-center gap-4 bg-card/60 backdrop-blur-sm shrink-0 flex-wrap">
           <h1 className="font-serif text-xl text-foreground mr-2">
             {format(currentDate, "yyyy년 M월", { locale: ko })}
           </h1>
@@ -136,9 +131,7 @@ export default function TeamCalendar() {
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
-
-          {/* 담당자 필터 */}
-          <div className="flex items-center gap-1.5 ml-2">
+          <div className="flex items-center gap-1.5 ml-2 flex-wrap">
             {["all", ...Object.keys(ASSIGNEE_MAP)].map((key) => (
               <button
                 key={key}
@@ -153,14 +146,13 @@ export default function TeamCalendar() {
               </button>
             ))}
           </div>
-
           <div className="ml-auto flex gap-2">
             {tasks.length === 0 && (
               <Button variant="outline" size="sm" onClick={() => seedTasks.mutate()} className="text-xs">
                 샘플 불러오기
               </Button>
             )}
-            <Button size="sm" onClick={() => { setSelectedDay(new Date()); setForm({ title: "", assignee: "", priority: "medium", due_date: format(new Date(), "yyyy-MM-dd"), milestone: "", description: "", status: "todo" }); setShowForm(true); }} className="gap-1.5 text-xs">
+            <Button size="sm" onClick={() => openNew(new Date())} className="gap-1.5 text-xs">
               <Plus className="w-3.5 h-3.5" /> 업무 추가
             </Button>
           </div>
@@ -182,7 +174,7 @@ export default function TeamCalendar() {
               <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="grid grid-cols-7 h-full" style={{ gridAutoRows: "minmax(100px, 1fr)" }}>
+            <div className="grid grid-cols-7" style={{ gridAutoRows: "minmax(100px, 1fr)" }}>
               {calendarDays.map((day, idx) => {
                 const key = format(day, "yyyy-MM-dd");
                 const dayTasks = tasksByDate[key] || [];
@@ -210,8 +202,8 @@ export default function TeamCalendar() {
                       </span>
                       {isCurrentMonth && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); openDayNew(day); }}
-                          className="opacity-0 hover:opacity-100 group-hover:opacity-100 w-4 h-4 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs leading-none hover:bg-primary hover:text-primary-foreground transition-all"
+                          onClick={(e) => { e.stopPropagation(); openNew(day); }}
+                          className="w-4 h-4 rounded-full bg-primary/20 text-primary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all opacity-0 hover:opacity-100"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -225,7 +217,8 @@ export default function TeamCalendar() {
                           title={t.title}
                         >
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${ASSIGNEE_MAP[t.assignee]?.chip || "bg-slate-400"}`} />
-                          {t.title}
+                          {t.start_time && <span className="opacity-70 shrink-0">{t.start_time}</span>}
+                          <span className="truncate">{t.title}</span>
                         </div>
                       ))}
                       {dayTasks.length > 3 && (
@@ -250,7 +243,7 @@ export default function TeamCalendar() {
                 <p className="text-xs text-muted-foreground">{selectedDayTasks.length}건의 업무</p>
               </div>
               <div className="flex gap-1">
-                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setForm({ ...form, due_date: format(selectedDay, "yyyy-MM-dd") }); setShowForm(true); }}>
+                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openNew(selectedDay)}>
                   <Plus className="w-3.5 h-3.5" />
                 </Button>
                 <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setSelectedDay(null)}>
@@ -262,7 +255,7 @@ export default function TeamCalendar() {
               {selectedDayTasks.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-sm text-muted-foreground">이 날에 업무가 없습니다</p>
-                  <Button variant="outline" size="sm" className="mt-3 text-xs" onClick={() => { setForm({ title: "", assignee: "", priority: "medium", due_date: format(selectedDay, "yyyy-MM-dd"), milestone: "", description: "", status: "todo" }); setShowForm(true); }}>
+                  <Button variant="outline" size="sm" className="mt-3 text-xs" onClick={() => openNew(selectedDay)}>
                     <Plus className="w-3 h-3 mr-1" /> 업무 추가
                   </Button>
                 </div>
@@ -299,6 +292,11 @@ export default function TeamCalendar() {
                           <span className="text-[10px] border border-border rounded px-1.5 py-0.5 text-muted-foreground">{task.milestone}</span>
                         )}
                       </div>
+                      {(task.start_time || task.end_time) && (
+                        <p className="text-[11px] text-blue-600 font-medium ml-6">
+                          {task.start_time || ""}{task.end_time ? ` ~ ${task.end_time}` : ""}
+                        </p>
+                      )}
                       {task.description && (
                         <p className="text-[11px] text-muted-foreground ml-6 leading-relaxed">{task.description}</p>
                       )}
@@ -310,7 +308,6 @@ export default function TeamCalendar() {
           </>
         ) : (
           <div className="flex flex-col h-full">
-            {/* 날짜 없는 업무 */}
             <div className="px-4 py-4 border-b border-border">
               <p className="text-sm font-semibold">미정 업무</p>
               <p className="text-xs text-muted-foreground">{tasksWithoutDate.length}건 · 마감일 미설정</p>
@@ -399,6 +396,16 @@ export default function TeamCalendar() {
               <div>
                 <Label>마일스톤</Label>
                 <Input value={form.milestone} onChange={(e) => setForm({ ...form, milestone: e.target.value })} placeholder="예: D-30" className="mt-1.5" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>시작 시간</Label>
+                <Input type="time" value={form.start_time || ""} onChange={(e) => setForm({ ...form, start_time: e.target.value })} className="mt-1.5" />
+              </div>
+              <div>
+                <Label>종료 시간</Label>
+                <Input type="time" value={form.end_time || ""} onChange={(e) => setForm({ ...form, end_time: e.target.value })} className="mt-1.5" />
               </div>
             </div>
             <div>
