@@ -4,6 +4,7 @@ import { LayoutDashboard, Package, Truck, Upload, Settings, Plug, BotMessageSqua
 
 const NAV = [
   { to: "/", label: "대시보드", icon: LayoutDashboard },
+  { to: "/calendar", label: "팀 캘린더", icon: CalendarDays },
   { to: "/orders", label: "주문 관리", icon: Package },
   { to: "/shipping", label: "송장 출력", icon: Truck },
   { to: "/upload", label: "주문 업로드", icon: Upload },
@@ -11,7 +12,6 @@ const NAV = [
   { to: "/marketing-kpi", label: "마케팅 성과", icon: Megaphone },
   { to: "/products", label: "제품 DB", icon: ShoppingBag },
   { to: "/ai-team", label: "AI 직원팀", icon: BotMessageSquare },
-  { to: "/calendar", label: "팀 캘린더", icon: CalendarDays },
   { to: "/sourcing", label: "글로벌 소싱", icon: Globe },
   { to: "/api-settings", label: "API 연동 설정", icon: Plug },
 ];
@@ -20,7 +20,7 @@ export default function Sidebar() {
   const location = useLocation();
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/50 backdrop-blur-sm h-screen sticky top-0 min-h-0">
+    <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/80 backdrop-blur-sm h-screen sticky top-0 min-h-0">
       <div className="px-7 py-8 border-b border-border">
         <Link to="/" className="flex flex-col">
           <span className="font-serif text-3xl tracking-tight text-primary">Nellia</span>

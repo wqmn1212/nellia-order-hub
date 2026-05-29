@@ -1,12 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, Truck, BarChart2, BotMessageSquare } from "lucide-react";
+import { LayoutDashboard, Package, Truck, BarChart2, BotMessageSquare, CalendarDays } from "lucide-react";
 
 const NAV = [
   { to: "/", label: "대시보드", icon: LayoutDashboard },
+  { to: "/calendar", label: "캘린더", icon: CalendarDays },
   { to: "/orders", label: "주문", icon: Package },
   { to: "/shipping", label: "송장", icon: Truck },
-  { to: "/analytics", label: "KPI", icon: BarChart2 },
   { to: "/ai-team", label: "AI팀", icon: BotMessageSquare },
 ];
 

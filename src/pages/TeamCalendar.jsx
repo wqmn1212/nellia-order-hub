@@ -114,11 +114,11 @@ export default function TeamCalendar() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-0px)] overflow-hidden bg-background">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-0px)] lg:overflow-hidden bg-background">
       {/* 메인 캘린더 영역 */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* 헤더 */}
-        <div className="px-6 py-4 border-b border-border flex items-center gap-4 bg-card/60 backdrop-blur-sm shrink-0 flex-wrap">
+        <div className="px-4 lg:px-6 py-3 lg:py-4 border-b border-border flex items-center gap-3 bg-card/60 backdrop-blur-sm shrink-0 flex-wrap">
           <h1 className="font-serif text-xl text-foreground mr-2">
             {format(currentDate, "yyyy년 M월", { locale: ko })}
           </h1>
@@ -131,7 +131,7 @@ export default function TeamCalendar() {
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
-          <div className="flex items-center gap-1.5 ml-2 flex-wrap">
+          <div className="flex items-center gap-1 ml-1 flex-wrap">
             {["all", ...Object.keys(ASSIGNEE_MAP)].map((key) => (
               <button
                 key={key}
@@ -168,7 +168,7 @@ export default function TeamCalendar() {
         </div>
 
         {/* 캘린더 그리드 */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {isLoading ? (
             <div className="flex justify-center items-center h-full">
               <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -234,7 +234,7 @@ export default function TeamCalendar() {
       </div>
 
       {/* 사이드 패널 */}
-      <div className="w-72 border-l border-border bg-card flex flex-col shrink-0 overflow-hidden">
+      <div className="w-full lg:w-72 border-t lg:border-t-0 lg:border-l border-border bg-card flex flex-col shrink-0 overflow-hidden lg:h-full max-h-[45vh] lg:max-h-none">
         {selectedDay ? (
           <>
             <div className="px-4 py-4 border-b border-border flex items-center justify-between">
