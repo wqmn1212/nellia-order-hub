@@ -1,0 +1,35 @@
+{
+  "name": "TaskLog",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "\uc5c5\ubb34 ID"
+    },
+    "task_title": {
+      "type": "string",
+      "description": "\uc5c5\ubb34 \uc81c\ubaa9"
+    },
+    "field_name": {
+      "type": "string",
+      "description": "\ubcc0\uacbd\ub41c \ud56d\ubaa9 \uc774\ub984 (\uc608: \uc0c1\ud0dc, \ub2f4\ub2f9\uc790)"
+    },
+    "old_value": {
+      "type": "string",
+      "description": "\uc774\uc804 \uac12"
+    },
+    "new_value": {
+      "type": "string",
+      "description": "\uc0c8 \uac12"
+    },
+    "changed_by_name": {
+      "type": "string",
+      "description": "\ubcc0\uacbd\ud55c \uc0ac\uc6a9\uc790 \uc774\ub984"
+    }
+  },
+  "required": [
+    "task_id",
+    "field_name",
+    "new_value"
+  ]
+}

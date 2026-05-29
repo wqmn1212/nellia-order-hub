@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useRef } from "react";
+import { useAuth } from "@/lib/AuthContext";
+import TaskHistoryFeed from "@/components/calendar/TaskHistoryFeed";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -52,6 +54,7 @@ const DEFAULT_TASKS = [
 
 export default function TeamCalendar() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -91,6 +94,36 @@ export default function TeamCalendar() {
     mutationFn: () => base44.entities.Task.bulkCreate(DEFAULT_TASKS),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   });
+
+  const FIELD_LABELS = { status: "상태", assignee: "담당자", priority: "우선순위", due_date: "마감일", title: "제목", description: "내용", milestone: "마일스톤" };
+  const VALUE_LABELS = {
+    status: { todo: "예정", in_progress: "진행중", done: "완료", cancelled: "취소", blocked: "블로킹" },
+    assignee: { ceo: "대표", designer: "디자이너", marketer: "마케터", logistics: "물류/운영" },
+    priority: { low: "낮음", medium: "보통", high: "높음", urgent: "긴급" },
+  };
+
+  const logChanges = (taskId, taskTitle, newData, oldData) => {
+    const changedByName = user?.full_name || "사용자";
+    Object.entries(newData).forEach(([key, newVal]) => {
+      const oldVal = oldData?.[key];
+      if (String(oldVal ?? "") !== String(newVal ?? "") && FIELD_LABELS[key]) {
+        const lm = VALUE_LABELS[key];
+        base44.entities.TaskLog.create({
+          task_id: taskId,
+          task_title: taskTitle,
+          field_name: FIELD_LABELS[key],
+          old_value: lm ? (lm[oldVal] || String(oldVal || "")) : String(oldVal || ""),
+          new_value: lm ? (lm[newVal] || String(newVal || "")) : String(newVal || ""),
+          changed_by_name: changedByName,
+        }).then(() => queryClient.invalidateQueries({ queryKey: ["task-logs", taskId] }));
+      }
+    });
+  };
+
+  const doUpdate = (taskId, taskTitle, newData, oldData) => {
+    updateTask.mutate({ id: taskId, data: newData });
+    logChanges(taskId, taskTitle, newData, oldData);
+  };
 
   const calendarDays = useMemo(() => {
     const start = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 0 });
@@ -146,7 +179,9 @@ export default function TeamCalendar() {
   const handleDrop = (day) => {
     if (!dragTaskId) return;
     const newDate = format(day, "yyyy-MM-dd");
+    const draggedTask = tasks.find(t => t.id === dragTaskId);
     updateTask.mutate({ id: dragTaskId, data: { due_date: newDate } });
+    if (draggedTask) logChanges(dragTaskId, draggedTask.title, { due_date: newDate }, { due_date: draggedTask.due_date });
     setDragTaskId(null);
     setDragOverDay(null);
   };
@@ -168,6 +203,7 @@ export default function TeamCalendar() {
   const handleSubmit = () => {
     if (editingTask) {
       updateTask.mutate({ id: editingTask.id, data: form }, { onSuccess: () => { setShowForm(false); setEditingTask(null); } });
+      logChanges(editingTask.id, editingTask.title, form, editingTask);
     } else {
       createTask.mutate(form);
     }
@@ -342,7 +378,7 @@ export default function TeamCalendar() {
                         {STATUS_OPTIONS.filter(o => o.value !== "todo" || task.status === "todo").map(o => (
                           <button
                             key={o.value}
-                            onClick={() => updateTask.mutate({ id: task.id, data: { status: o.value } })}
+                            onClick={() => doUpdate(task.id, task.title, { status: o.value }, { status: task.status })}
                             className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-all border ${
                               task.status === o.value ? `${o.cls} border-transparent` : "bg-transparent border-border text-muted-foreground hover:bg-muted"
                             }`}
@@ -380,6 +416,7 @@ export default function TeamCalendar() {
                           ))}
                         </div>
                       )}
+                      <TaskHistoryFeed taskId={task.id} />
                     </div>
                   );
                 })
@@ -424,7 +461,7 @@ export default function TeamCalendar() {
                         {STATUS_OPTIONS.filter(o => o.value !== "todo" || task.status === "todo").map(o => (
                           <button
                             key={o.value}
-                            onClick={() => updateTask.mutate({ id: task.id, data: { status: o.value } })}
+                            onClick={() => doUpdate(task.id, task.title, { status: o.value }, { status: task.status })}
                             className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-all border ${
                               task.status === o.value ? `${o.cls} border-transparent` : "bg-transparent border-border text-muted-foreground hover:bg-muted"
                             }`}
