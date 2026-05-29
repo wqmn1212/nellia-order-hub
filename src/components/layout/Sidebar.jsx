@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, Truck, Upload, Settings, Plug, BotMessageSquare, BarChart2, ShoppingBag, Megaphone, CalendarDays, Globe } from "lucide-react";
+import { LayoutDashboard, Package, Truck, Upload, Settings, Plug, BotMessageSquare, BarChart2, ShoppingBag, Megaphone, CalendarDays, Globe, HardDrive } from "lucide-react";
 
 const NAV = [
   { to: "/", label: "대시보드", icon: LayoutDashboard },
@@ -13,6 +13,7 @@ const NAV = [
   { to: "/products", label: "제품 DB", icon: ShoppingBag },
   { to: "/ai-team", label: "AI 직원팀", icon: BotMessageSquare },
   { to: "/sourcing", label: "글로벌 소싱", icon: Globe },
+  { to: "/drive", label: "파일 드라이브", icon: HardDrive },
   { to: "/api-settings", label: "API 연동 설정", icon: Plug },
 ];
 

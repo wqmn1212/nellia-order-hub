@@ -63,11 +63,26 @@
     },
     "milestone": {
       "type": "string",
-      "description": "\ub9c8\uc77c\uc2a4\ud1a4 (\uc608: D-30, \uc640\ub514\uc988 \uc624\ud508)"
+      "description": "\ub9c8\uc77c\uc2a4\ud1a4 (\uc608: D-30)"
     },
     "notes": {
       "type": "string",
       "description": "\uba54\ubaa8"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "\ucca8\ubd80 \ud30c\uc77c \ubaa9\ub85d"
     }
   },
   "required": [

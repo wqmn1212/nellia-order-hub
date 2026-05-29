@@ -19,6 +19,7 @@ import Products from '@/pages/Products';
 import MarketingKpi from '@/pages/MarketingKpi';
 import TeamCalendar from '@/pages/TeamCalendar';
 import Sourcing from '@/pages/Sourcing';
+import FileDrive from '@/pages/FileDrive';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -76,6 +77,7 @@ const AuthenticatedApp = () => {
         <Route path="/marketing-kpi" element={<MarketingKpi />} />
         <Route path="/calendar" element={<TeamCalendar />} />
         <Route path="/sourcing" element={<Sourcing />} />
+        <Route path="/drive" element={<FileDrive />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

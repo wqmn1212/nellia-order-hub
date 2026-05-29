@@ -1,0 +1,31 @@
+{
+  "name": "DriveFile",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "\ud30c\uc77c\uba85"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "\ud30c\uc77c URL"
+    },
+    "folder": {
+      "type": "string",
+      "default": "\uae30\ubcf8 \ud3f4\ub354",
+      "description": "\ud3f4\ub354\uba85"
+    },
+    "mime_type": {
+      "type": "string",
+      "description": "\ud30c\uc77c \ud0c0\uc785 (\uc608: image/png, application/pdf)"
+    },
+    "file_size": {
+      "type": "number",
+      "description": "\ud30c\uc77c \ud06c\uae30 (bytes)"
+    }
+  },
+  "required": [
+    "name",
+    "file_url"
+  ]
+}

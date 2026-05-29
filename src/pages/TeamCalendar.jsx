@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,9 @@ export default function TeamCalendar() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [filterAssignee, setFilterAssignee] = useState("all");
-  const [form, setForm] = useState({ title: "", assignee: "", priority: "medium", due_date: "", start_time: "", end_time: "", milestone: "", description: "", status: "todo" });
+  const [form, setForm] = useState({ title: "", assignee: "", priority: "medium", due_date: "", start_time: "", end_time: "", milestone: "", description: "", status: "todo", attachments: [] });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const [editingTask, setEditingTask] = useState(null);
   const [dragTaskId, setDragTaskId] = useState(null);
   const [dragOverDay, setDragOverDay] = useState(null);
@@ -71,7 +73,7 @@ export default function TeamCalendar() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setShowForm(false);
-      setForm({ title: "", assignee: "", priority: "medium", due_date: selectedDay ? format(selectedDay, "yyyy-MM-dd") : "", start_time: "", end_time: "", milestone: "", description: "", status: "todo" });
+      setForm({ title: "", assignee: "", priority: "medium", due_date: selectedDay ? format(selectedDay, "yyyy-MM-dd") : "", start_time: "", end_time: "", milestone: "", description: "", status: "todo", attachments: [] });
     },
   });
 
@@ -120,7 +122,7 @@ export default function TeamCalendar() {
   const openNew = (day) => {
     setEditingTask(null);
     setSelectedDay(day);
-    setForm({ title: "", assignee: "", priority: "medium", due_date: format(day, "yyyy-MM-dd"), start_time: "", end_time: "", milestone: "", description: "", status: "todo" });
+    setForm({ title: "", assignee: "", priority: "medium", due_date: format(day, "yyyy-MM-dd"), start_time: "", end_time: "", milestone: "", description: "", status: "todo", attachments: [] });
     setShowForm(true);
   };
 
@@ -136,6 +138,7 @@ export default function TeamCalendar() {
       milestone: task.milestone || "",
       description: task.description || "",
       status: task.status || "todo",
+      attachments: task.attachments || [],
     });
     setShowForm(true);
   };
@@ -146,6 +149,20 @@ export default function TeamCalendar() {
     updateTask.mutate({ id: dragTaskId, data: { due_date: newDate } });
     setDragTaskId(null);
     setDragOverDay(null);
+  };
+
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploading(true);
+    const uploaded = [];
+    for (const file of files) {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      uploaded.push({ name: file.name, url: file_url });
+    }
+    setForm(prev => ({ ...prev, attachments: [...(prev.attachments || []), ...uploaded] }));
+    setUploading(false);
+    e.target.value = "";
   };
 
   const handleSubmit = () => {
@@ -351,7 +368,17 @@ export default function TeamCalendar() {
                         </p>
                       )}
                       {task.description && (
-                        <p className="text-[11px] text-muted-foreground ml-6 leading-relaxed">{task.description}</p>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">{task.description}</p>
+                      )}
+                      {task.attachments?.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-semibold text-muted-foreground">첨부 파일</p>
+                          {task.attachments.map((att, i) => (
+                            <a key={i} href={att.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[11px] text-primary hover:underline">
+                              <span className="w-3 h-3 text-muted-foreground">📎</span> {att.name}
+                            </a>
+                          ))}
+                        </div>
                       )}
                     </div>
                   );
@@ -477,6 +504,23 @@ export default function TeamCalendar() {
             <div>
               <Label>메모</Label>
               <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="mt-1.5 text-sm" />
+            </div>
+            <div>
+              <Label>첨부 파일</Label>
+              <div className="mt-1.5 space-y-1.5">
+                {(form.attachments || []).map((att, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs bg-muted/50 rounded-md px-2.5 py-1.5">
+                    <span className="flex-1 truncate text-foreground">{att.name}</span>
+                    <a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline shrink-0">다운</a>
+                    <button onClick={() => setForm(prev => ({ ...prev, attachments: prev.attachments.filter((_, j) => j !== i) }))} className="text-muted-foreground hover:text-destructive">×</button>
+                  </div>
+                ))}
+                <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileUpload} />
+                <Button type="button" variant="outline" size="sm" className="w-full text-xs gap-1.5" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                  {uploading ? <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : <Plus className="w-3 h-3" />}
+                  {uploading ? "업로드 중..." : "파일 첨부"}
+                </Button>
+              </div>
             </div>
             {editingTask && (
               <div>
