@@ -21,9 +21,9 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/80 backdrop-blur-sm h-screen sticky top-0 min-h-0">
-      <div className="px-7 py-8 border-b border-border">
-        <Link to="/" className="flex flex-col">
-          <span className="font-serif text-3xl tracking-tight text-primary">Nellia</span>
+      <div className="px-6 py-6 border-b border-border">
+        <Link to="/" className="flex flex-col items-start">
+          <img src="https://media.base44.com/images/public/69e37e5e767e8ab3b10b5da8/6eb42ef0d_NelliaLogo_BlackPink_1.png" alt="Nellia" className="h-10 w-auto object-contain" />
           <span className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground mt-1">Order Studio</span>
         </Link>
       </div>

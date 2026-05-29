@@ -15,7 +15,7 @@ export default function MobileNav() {
   return (
     <>
       <header className="lg:hidden sticky top-0 z-30 bg-card/80 backdrop-blur-md border-b border-border px-5 py-4 flex items-center justify-between">
-        <Link to="/" className="font-serif text-2xl tracking-tight text-primary">Nellia</Link>
+        <Link to="/"><img src="https://media.base44.com/images/public/69e37e5e767e8ab3b10b5da8/6eb42ef0d_NelliaLogo_BlackPink_1.png" alt="Nellia" className="h-8 w-auto object-contain" /></Link>
         <span className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground">Order Studio</span>
       </header>
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-t border-border">
