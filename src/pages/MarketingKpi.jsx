@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import AiTaskRecommender from "@/components/shared/AiTaskRecommender";
 import moment from "moment";
 
 const THIS_MONTH = moment().format("YYYY-MM");
@@ -202,6 +203,11 @@ export default function MarketingKpi() {
           />
         </div>
       )}
+
+      {/* AI 태스크 추천 */}
+      <div className="mt-8">
+        <AiTaskRecommender context="marketing" />
+      </div>
 
       {/* KPI 수정 모달 */}
       {editTarget && (

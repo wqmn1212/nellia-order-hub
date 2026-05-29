@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import TaskHistoryFeed from "@/components/calendar/TaskHistoryFeed";
+import AiTaskRecommender from "@/components/shared/AiTaskRecommender";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -475,8 +476,8 @@ export default function TeamCalendar() {
                 })
               )}
             </div>
-            <div className="px-4 py-4 border-t border-border">
-              <p className="text-[11px] text-muted-foreground text-center">날짜를 클릭하면 해당 일의 업무를 볼 수 있어요</p>
+            <div className="px-3 py-3 border-t border-border">
+              <AiTaskRecommender context="calendar" />
             </div>
           </div>
         )}

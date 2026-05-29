@@ -8,6 +8,7 @@ import RepurchaseChart from "@/components/analytics/RepurchaseChart";
 import ConversionFunnelChart from "@/components/analytics/ConversionFunnelChart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrendingUp } from "lucide-react";
+import AiTaskRecommender from "@/components/shared/AiTaskRecommender";
 import { subDays, isAfter, parseISO, format, startOfMonth } from "date-fns";
 
 const PERIOD_OPTIONS = [
@@ -93,6 +94,11 @@ export default function Analytics() {
         <ChannelRoiChart orders={filtered} />
         <RepurchaseChart orders={filtered} allOrders={orders} />
         <ConversionFunnelChart orders={filtered} />
+      </div>
+
+      {/* AI 태스크 추천 */}
+      <div className="mt-8">
+        <AiTaskRecommender context="analytics" />
       </div>
     </div>
   );

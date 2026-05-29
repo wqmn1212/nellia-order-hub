@@ -66,6 +66,26 @@
       "type": "number",
       "default": 10,
       "description": "\uc7ac\uace0 \ubd80\uc871 \uc54c\ub9bc \uae30\uc900 \uc218\ub7c9"
+    },
+    "ai_features": {
+      "type": "string",
+      "description": "AI \ubd84\uc11d: \uc81c\ud488 \ud575\uc2ec \ud2b9\uc9d5"
+    },
+    "ai_advantages": {
+      "type": "string",
+      "description": "AI \ubd84\uc11d: \uc81c\ud488 \uac15\uc810/\uc7a5\uc810"
+    },
+    "ai_selling_points": {
+      "type": "string",
+      "description": "AI \ubd84\uc11d: \ud310\ub9e4 \ud3ec\uc778\ud2b8"
+    },
+    "ai_target_audience": {
+      "type": "string",
+      "description": "AI \ubd84\uc11d: \ud0c0\uac9f \uace0\uac1d"
+    },
+    "ai_sales_strategy": {
+      "type": "string",
+      "description": "AI \ubd84\uc11d: \ud310\ub9e4 \uc804\ub7b5"
     }
   },
   "required": [
