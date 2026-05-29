@@ -476,7 +476,7 @@ export default function TeamCalendar() {
                 })
               )}
             </div>
-            <div className="px-3 py-3 border-t border-border">
+            <div className="px-3 py-3 border-t border-border overflow-y-auto">
               <AiTaskRecommender context="calendar" />
             </div>
           </div>
