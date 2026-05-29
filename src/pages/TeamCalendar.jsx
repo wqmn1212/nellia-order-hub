@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, ChevronLeft, ChevronRight, CheckCircle2, Clock, AlertCircle, Loader2, X, Trash2 } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, CheckCircle2, Clock, XCircle, Loader2, X, Trash2, Pencil } from "lucide-react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths, subMonths, isSameMonth, isSameDay, isToday } from "date-fns";
 import { ko } from "date-fns/locale";
 
@@ -20,11 +20,18 @@ const ASSIGNEE_MAP = {
 };
 
 const STATUS_MAP = {
-  todo: { label: "예정", icon: Clock, color: "text-slate-500" },
-  in_progress: { label: "진행 중", icon: Loader2, color: "text-blue-500" },
+  todo: { label: "예정", icon: Clock, color: "text-slate-400" },
+  in_progress: { label: "진행중", icon: Loader2, color: "text-blue-500" },
   done: { label: "완료", icon: CheckCircle2, color: "text-green-500" },
-  blocked: { label: "블로킹", icon: AlertCircle, color: "text-red-500" },
+  cancelled: { label: "취소", icon: XCircle, color: "text-slate-400" },
 };
+
+const STATUS_OPTIONS = [
+  { value: "todo", label: "예정", cls: "bg-slate-100 text-slate-600" },
+  { value: "in_progress", label: "진행중", cls: "bg-blue-100 text-blue-700" },
+  { value: "done", label: "완료", cls: "bg-green-100 text-green-700" },
+  { value: "cancelled", label: "취소", cls: "bg-slate-100 text-slate-400" },
+];
 
 const PRIORITY_COLOR = {
   low: "bg-slate-100 text-slate-600",
@@ -50,6 +57,7 @@ export default function TeamCalendar() {
   const [showForm, setShowForm] = useState(false);
   const [filterAssignee, setFilterAssignee] = useState("all");
   const [form, setForm] = useState({ title: "", assignee: "", priority: "medium", due_date: "", start_time: "", end_time: "", milestone: "", description: "", status: "todo" });
+  const [editingTask, setEditingTask] = useState(null);
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -108,9 +116,34 @@ export default function TeamCalendar() {
   const STATUS_CYCLE = ["todo", "in_progress", "done", "blocked"];
 
   const openNew = (day) => {
+    setEditingTask(null);
     setSelectedDay(day);
     setForm({ title: "", assignee: "", priority: "medium", due_date: format(day, "yyyy-MM-dd"), start_time: "", end_time: "", milestone: "", description: "", status: "todo" });
     setShowForm(true);
+  };
+
+  const openEdit = (task) => {
+    setEditingTask(task);
+    setForm({
+      title: task.title || "",
+      assignee: task.assignee || "",
+      priority: task.priority || "medium",
+      due_date: task.due_date ? task.due_date.split("T")[0] : "",
+      start_time: task.start_time || "",
+      end_time: task.end_time || "",
+      milestone: task.milestone || "",
+      description: task.description || "",
+      status: task.status || "todo",
+    });
+    setShowForm(true);
+  };
+
+  const handleSubmit = () => {
+    if (editingTask) {
+      updateTask.mutate({ id: editingTask.id, data: form }, { onSuccess: () => { setShowForm(false); setEditingTask(null); } });
+    } else {
+      createTask.mutate(form);
+    }
   };
 
   return (
@@ -261,27 +294,33 @@ export default function TeamCalendar() {
                 </div>
               ) : (
                 selectedDayTasks.map((task) => {
-                  const StatusIcon = STATUS_MAP[task.status]?.icon || Clock;
                   return (
-                    <div key={task.id} className="bg-background border border-border rounded-lg p-3 space-y-2">
+                    <div key={task.id} className={`bg-background border border-border rounded-lg p-3 space-y-2 ${task.status === "cancelled" ? "opacity-50" : ""}`}>
                       <div className="flex items-start gap-2">
-                        <button
-                          onClick={() => {
-                            const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(task.status) + 1) % STATUS_CYCLE.length];
-                            updateTask.mutate({ id: task.id, data: { status: next } });
-                          }}
-                          className={`mt-0.5 shrink-0 ${STATUS_MAP[task.status]?.color}`}
-                        >
-                          <StatusIcon className={`w-4 h-4 ${task.status === "in_progress" ? "animate-spin" : ""}`} />
-                        </button>
-                        <p className={`text-xs font-medium leading-snug flex-1 ${task.status === "done" ? "line-through text-muted-foreground" : ""}`}>
+                        <p className={`text-xs font-medium leading-snug flex-1 ${task.status === "done" ? "line-through text-muted-foreground" : task.status === "cancelled" ? "line-through text-muted-foreground" : ""}`}>
                           {task.title}
                         </p>
+                        <button onClick={() => openEdit(task)} className="text-muted-foreground hover:text-foreground shrink-0">
+                          <Pencil className="w-3 h-3" />
+                        </button>
                         <button onClick={() => deleteTask.mutate(task.id)} className="text-muted-foreground hover:text-destructive shrink-0">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
-                      <div className="flex flex-wrap gap-1 ml-6">
+                      <div className="flex gap-1">
+                        {STATUS_OPTIONS.filter(o => o.value !== "todo" || task.status === "todo").map(o => (
+                          <button
+                            key={o.value}
+                            onClick={() => updateTask.mutate({ id: task.id, data: { status: o.value } })}
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-all border ${
+                              task.status === o.value ? `${o.cls} border-transparent` : "bg-transparent border-border text-muted-foreground hover:bg-muted"
+                            }`}
+                          >
+                            {o.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-1">
                         <Badge className={`text-[10px] px-1.5 py-0 ${ASSIGNEE_MAP[task.assignee]?.light}`}>
                           {ASSIGNEE_MAP[task.assignee]?.label}
                         </Badge>
@@ -317,29 +356,37 @@ export default function TeamCalendar() {
                 <p className="text-xs text-muted-foreground text-center py-6">모든 업무에 마감일이 설정되어 있습니다</p>
               ) : (
                 tasksWithoutDate.map((task) => {
-                  const StatusIcon = STATUS_MAP[task.status]?.icon || Clock;
                   return (
-                    <div key={task.id} className="bg-background border border-border rounded-lg p-3 space-y-1.5">
+                    <div key={task.id} className={`bg-background border border-border rounded-lg p-3 space-y-1.5 ${task.status === "cancelled" ? "opacity-50" : ""}`}>
                       <div className="flex items-start gap-2">
-                        <button
-                          onClick={() => {
-                            const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(task.status) + 1) % STATUS_CYCLE.length];
-                            updateTask.mutate({ id: task.id, data: { status: next } });
-                          }}
-                          className={`mt-0.5 shrink-0 ${STATUS_MAP[task.status]?.color}`}
-                        >
-                          <StatusIcon className={`w-4 h-4 ${task.status === "in_progress" ? "animate-spin" : ""}`} />
-                        </button>
-                        <p className={`text-xs font-medium leading-snug flex-1 ${task.status === "done" ? "line-through text-muted-foreground" : ""}`}>
+                        <p className={`text-xs font-medium leading-snug flex-1 ${task.status === "done" || task.status === "cancelled" ? "line-through text-muted-foreground" : ""}`}>
                           {task.title}
                         </p>
+                        <button onClick={() => openEdit(task)} className="text-muted-foreground hover:text-foreground shrink-0">
+                          <Pencil className="w-3 h-3" />
+                        </button>
                         <button onClick={() => deleteTask.mutate(task.id)} className="text-muted-foreground hover:text-destructive shrink-0">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
-                      <Badge className={`text-[10px] px-1.5 py-0 ml-6 ${ASSIGNEE_MAP[task.assignee]?.light}`}>
-                        {ASSIGNEE_MAP[task.assignee]?.label}
-                      </Badge>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge className={`text-[10px] px-1.5 py-0 ${ASSIGNEE_MAP[task.assignee]?.light}`}>
+                          {ASSIGNEE_MAP[task.assignee]?.label}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-1">
+                        {STATUS_OPTIONS.filter(o => o.value !== "todo" || task.status === "todo").map(o => (
+                          <button
+                            key={o.value}
+                            onClick={() => updateTask.mutate({ id: task.id, data: { status: o.value } })}
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-all border ${
+                              task.status === o.value ? `${o.cls} border-transparent` : "bg-transparent border-border text-muted-foreground hover:bg-muted"
+                            }`}
+                          >
+                            {o.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   );
                 })
@@ -352,11 +399,11 @@ export default function TeamCalendar() {
         )}
       </div>
 
-      {/* 업무 추가 다이얼로그 */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
+      {/* 업무 추가/수정 다이얼로그 */}
+      <Dialog open={showForm} onOpenChange={(o) => { setShowForm(o); if (!o) setEditingTask(null); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>업무 추가</DialogTitle>
+            <DialogTitle>{editingTask ? "업무 수정" : "업무 추가"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
@@ -412,9 +459,22 @@ export default function TeamCalendar() {
               <Label>메모</Label>
               <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="mt-1.5 text-sm" />
             </div>
+            {editingTask && (
+              <div>
+                <Label>상태</Label>
+                <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="flex gap-2 pt-1">
-              <Button variant="outline" className="flex-1" onClick={() => setShowForm(false)}>취소</Button>
-              <Button className="flex-1" onClick={() => createTask.mutate(form)} disabled={!form.title || !form.assignee}>추가</Button>
+              <Button variant="outline" className="flex-1" onClick={() => { setShowForm(false); setEditingTask(null); }}>취소</Button>
+              <Button className="flex-1" onClick={handleSubmit} disabled={!form.title || !form.assignee}>
+                {editingTask ? "저장" : "추가"}
+              </Button>
             </div>
           </div>
         </DialogContent>
