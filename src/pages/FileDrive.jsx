@@ -24,6 +24,7 @@ function formatBytes(bytes) {
 export default function FileDrive() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
   const [selectedFolder, setSelectedFolder] = useState("기본 폴더");
   const [uploading, setUploading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,6 +61,29 @@ export default function FileDrive() {
         name: file.name,
         file_url,
         folder: selectedFolder,
+        mime_type: file.type,
+        file_size: file.size,
+      });
+    }
+    queryClient.invalidateQueries({ queryKey: ["drive-files"] });
+    setUploading(false);
+    e.target.value = "";
+  };
+
+  const handleFolderUpload = async (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (!selectedFiles.length) return;
+    setUploading(true);
+    for (const file of selectedFiles) {
+      const relativePath = file.webkitRelativePath || file.name;
+      const parts = relativePath.split("/");
+      const rootFolder = parts[0];
+      const fileName = parts.length > 1 ? parts.slice(1).join("/") : file.name;
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.entities.DriveFile.create({
+        name: fileName,
+        file_url,
+        folder: rootFolder,
         mime_type: file.type,
         file_size: file.size,
       });
@@ -131,6 +155,17 @@ export default function FileDrive() {
             />
           </div>
           <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleUpload} />
+          <input ref={folderInputRef} type="file" className="hidden" onChange={handleFolderUpload} webkitdirectory="" />
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => folderInputRef.current?.click()}
+            disabled={uploading}
+            className="gap-1.5 text-xs"
+          >
+            <Folder className="w-3.5 h-3.5" />
+            폴더 업로드
+          </Button>
           <Button
             size="sm"
             onClick={() => fileInputRef.current?.click()}
