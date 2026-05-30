@@ -1,0 +1,51 @@
+{
+  "name": "InventoryLog",
+  "type": "object",
+  "properties": {
+    "product_id": {
+      "type": "string",
+      "description": "\uc81c\ud488 ID"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "\uc81c\ud488\uba85 (\uc870\ud68c \ud3b8\uc758\uc6a9)"
+    },
+    "quantity_change": {
+      "type": "number",
+      "description": "\ubcc0\ub3d9 \uc218\ub7c9 (\uc591\uc218: \uc785\uace0, \uc74c\uc218: \ucd9c\uace0)"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "sale_out",
+        "return_in",
+        "defect_discard",
+        "manual_adjust",
+        "initial_stock",
+        "other"
+      ],
+      "description": "\uc0ac\uc720: \ud310\ub9e4\ucd9c\uace0, \ubc18\ud488\uc785\uace0, \ubd88\ub7c9\ud3d0\uae30, \uc218\ub3d9\uc870\uc815, \ucd08\uae30\uc7ac\uace0, \uae30\ud0c0"
+    },
+    "reason_detail": {
+      "type": "string",
+      "description": "\uc0c1\uc138 \uc0ac\uc720 \uba54\ubaa8"
+    },
+    "handler": {
+      "type": "string",
+      "description": "\ucc98\ub9ac\uc790 \uc774\ub984"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "\uad00\ub828 \uc8fc\ubb38 ID (\uc788\uc744 \uacbd\uc6b0)"
+    },
+    "stock_after": {
+      "type": "number",
+      "description": "\ubcc0\ub3d9 \ud6c4 \uc7ac\uace0 \uc218\ub7c9"
+    }
+  },
+  "required": [
+    "product_id",
+    "quantity_change",
+    "reason"
+  ]
+}

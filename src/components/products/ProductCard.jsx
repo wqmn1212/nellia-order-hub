@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2 } from "lucide-react";
 import ProductAiAnalysis from "@/components/products/ProductAiAnalysis";
+import InventoryHistory from "@/components/products/InventoryHistory";
 
 const CATEGORY_LABELS = {
   hair_dryer: "헤어드라이어",
@@ -59,6 +60,8 @@ export default function ProductCard({ product, onEdit, onDelete }) {
         )}
 
         <ProductAiAnalysis product={product} />
+
+        <InventoryHistory product={product} />
 
         <div className="flex gap-2 pt-2">
           <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={() => onEdit(product)}>
