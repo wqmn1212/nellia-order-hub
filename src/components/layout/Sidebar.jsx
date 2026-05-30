@@ -1,5 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
+import { canAccess } from "@/lib/roleConfig";
 import { LayoutDashboard, Package, Truck, Upload, Settings, Plug, BotMessageSquare, BarChart2, ShoppingBag, Megaphone, CalendarDays, Globe, HardDrive } from "lucide-react";
 
 const NAV = [
@@ -19,6 +21,9 @@ const NAV = [
 
 export default function Sidebar() {
   const location = useLocation();
+  const { user } = useAuth();
+  const role = user?.role || "cs";
+  const visibleNav = NAV.filter((item) => canAccess(role, item.to));
 
   return (
     <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/80 backdrop-blur-sm h-screen sticky top-0 min-h-0">
@@ -30,7 +35,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-        {NAV.map((item) => {
+        {visibleNav.map((item) => {
           const active = item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to);
           const Icon = item.icon;
           return (

@@ -6,6 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from '@/components/layout/Layout';
+import RoleGuard from '@/components/RoleGuard';
 import { base44 } from '@/api/base44Client';
 import Dashboard from '@/pages/Dashboard';
 import Orders from '@/pages/Orders';
@@ -44,40 +45,25 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // 어드민 전용: admin 역할이 아닌 경우 접근 차단
-  if (user && user.role !== 'admin') {
-    return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-background text-center px-6">
-        <p className="text-4xl mb-4">🔒</p>
-        <h1 className="font-serif text-2xl text-foreground mb-2">접근 권한이 없습니다</h1>
-        <p className="text-muted-foreground text-sm">이 페이지는 관리자 계정으로만 접근할 수 있습니다.</p>
-        <button
-          onClick={() => { base44.auth.logout(); }}
-          className="mt-6 px-4 py-2 text-sm rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          로그아웃
-        </button>
-      </div>
-    );
-  }
+
 
   // Render the main app
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/orders/:id" element={<OrderDetail />} />
-        <Route path="/shipping" element={<Shipping />} />
-        <Route path="/upload" element={<Upload />} />
-        <Route path="/api-settings" element={<ApiSettings />} />
-        <Route path="/ai-team" element={<AiTeam />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/marketing-kpi" element={<MarketingKpi />} />
-        <Route path="/calendar" element={<TeamCalendar />} />
-        <Route path="/sourcing" element={<Sourcing />} />
-        <Route path="/drive" element={<FileDrive />} />
+        <Route path="/orders" element={<RoleGuard><Orders /></RoleGuard>} />
+        <Route path="/orders/:id" element={<RoleGuard><OrderDetail /></RoleGuard>} />
+        <Route path="/shipping" element={<RoleGuard><Shipping /></RoleGuard>} />
+        <Route path="/upload" element={<RoleGuard><Upload /></RoleGuard>} />
+        <Route path="/api-settings" element={<RoleGuard><ApiSettings /></RoleGuard>} />
+        <Route path="/ai-team" element={<RoleGuard><AiTeam /></RoleGuard>} />
+        <Route path="/analytics" element={<RoleGuard><Analytics /></RoleGuard>} />
+        <Route path="/products" element={<RoleGuard><Products /></RoleGuard>} />
+        <Route path="/marketing-kpi" element={<RoleGuard><MarketingKpi /></RoleGuard>} />
+        <Route path="/calendar" element={<RoleGuard><TeamCalendar /></RoleGuard>} />
+        <Route path="/sourcing" element={<RoleGuard><Sourcing /></RoleGuard>} />
+        <Route path="/drive" element={<RoleGuard><FileDrive /></RoleGuard>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

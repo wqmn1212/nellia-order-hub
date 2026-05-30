@@ -1,5 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
+import { canAccess } from "@/lib/roleConfig";
 import { LayoutDashboard, Package, Truck, BarChart2, BotMessageSquare, CalendarDays } from "lucide-react";
 
 const NAV = [
@@ -12,6 +14,9 @@ const NAV = [
 
 export default function MobileNav() {
   const location = useLocation();
+  const { user } = useAuth();
+  const role = user?.role || "cs";
+  const visibleNav = NAV.filter((item) => canAccess(role, item.to));
   return (
     <>
       <header className="lg:hidden sticky top-0 z-30 bg-card/80 backdrop-blur-md border-b border-border px-5 py-4 flex items-center justify-between">
@@ -19,8 +24,8 @@ export default function MobileNav() {
         <span className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground">Order Studio</span>
       </header>
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-t border-border">
-        <div className="grid grid-cols-5">
-          {NAV.map((item) => {
+        <div className={`grid grid-cols-${Math.min(visibleNav.length, 5)}`}>
+          {visibleNav.map((item) => {
             const active = item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to);
             const Icon = item.icon;
             return (
