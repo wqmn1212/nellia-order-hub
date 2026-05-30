@@ -1,28 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Package } from "lucide-react";
+import { Package, MoreHorizontal, MessageSquareWarning } from "lucide-react";
+import CsTicketForm from "@/components/cs/CsTicketForm";
 import ChannelBadge from "@/components/shared/ChannelBadge";
 import { STATUSES } from "@/components/shared/constants";
 
 export default function OrderTable({ orders, selected, onToggleSelect, onToggleAll, onStatusChange }) {
+  const [csOrder, setCsOrder] = useState(null);
   const allSelected = orders.length > 0 && selected.length === orders.length;
 
   if (orders.length === 0) {
-    return (
-      <Card className="border-border/70 shadow-sm p-16 text-center">
-        <Package className="w-12 h-12 mx-auto text-muted-foreground/40 mb-4" />
-        <p className="font-serif text-lg text-foreground">주문이 없습니다</p>
-        <p className="text-sm text-muted-foreground mt-1">조건을 변경하거나 새 주문을 추가해보세요</p>
-      </Card>
-    );
-  }
-
   return (
+    <>
     <Card className="border-border/70 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -88,12 +84,27 @@ export default function OrderTable({ orders, selected, onToggleSelect, onToggleA
                 <td className="px-3 py-4 font-mono text-xs text-muted-foreground whitespace-nowrap">
                   {order.tracking_number || <span className="text-muted-foreground/50">미입력</span>}
                 </td>
-                <td className="pr-5"></td>
+                <td className="pr-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setCsOrder(order)}>
+                        <MessageSquareWarning className="w-4 h-4 mr-2" /> CS 접수하기
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
     </Card>
+    <CsTicketForm open={!!csOrder} onOpenChange={(o) => { if (!o) setCsOrder(null); }} order={csOrder} />
+    </>
   );
 }
