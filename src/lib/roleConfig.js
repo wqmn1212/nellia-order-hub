@@ -1,9 +1,9 @@
 // 역할별 접근 가능 경로 매핑
 export const ROLE_ROUTES = {
   admin: "all", // 모든 페이지 접근 가능
-  marketing: ["/", "/calendar", "/analytics", "/marketing-kpi", "/products", "/ai-team", "/drive"],
-  logistics: ["/", "/calendar", "/orders", "/shipping", "/upload", "/sourcing", "/profitability", "/drive"],
-  cs: ["/", "/calendar", "/orders", "/cs-tickets", "/ai-team"],
+  marketing: ["/", "/summary", "/calendar", "/analytics", "/marketing-kpi", "/products", "/ai-team", "/drive"],
+  logistics: ["/", "/summary", "/calendar", "/orders", "/shipping", "/upload", "/sourcing", "/profitability", "/drive"],
+  cs: ["/", "/summary", "/calendar", "/orders", "/cs-tickets", "/ai-team"],
 };
 
 export function canAccess(role, path) {

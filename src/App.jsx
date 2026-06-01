@@ -23,6 +23,7 @@ import Sourcing from '@/pages/Sourcing';
 import FileDrive from '@/pages/FileDrive';
 import CsTickets from '@/pages/CsTickets';
 import Profitability from '@/pages/Profitability';
+import MobileSummary from '@/pages/MobileSummary';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -68,6 +69,7 @@ const AuthenticatedApp = () => {
         <Route path="/drive" element={<RoleGuard><FileDrive /></RoleGuard>} />
         <Route path="/cs-tickets" element={<RoleGuard><CsTickets /></RoleGuard>} />
         <Route path="/profitability" element={<RoleGuard><Profitability /></RoleGuard>} />
+        <Route path="/summary" element={<RoleGuard><MobileSummary /></RoleGuard>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
