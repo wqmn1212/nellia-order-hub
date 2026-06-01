@@ -22,6 +22,7 @@ import TeamCalendar from '@/pages/TeamCalendar';
 import Sourcing from '@/pages/Sourcing';
 import FileDrive from '@/pages/FileDrive';
 import CsTickets from '@/pages/CsTickets';
+import Profitability from '@/pages/Profitability';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -66,6 +67,7 @@ const AuthenticatedApp = () => {
         <Route path="/sourcing" element={<RoleGuard><Sourcing /></RoleGuard>} />
         <Route path="/drive" element={<RoleGuard><FileDrive /></RoleGuard>} />
         <Route path="/cs-tickets" element={<RoleGuard><CsTickets /></RoleGuard>} />
+        <Route path="/profitability" element={<RoleGuard><Profitability /></RoleGuard>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

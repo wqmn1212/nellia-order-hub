@@ -1,0 +1,22 @@
+{
+  "name": "SalesChannel",
+  "type": "object",
+  "properties": {
+    "channel_name": {
+      "type": "string",
+      "description": "\ucc44\ub110\uba85 (\uc640\ub514\uc988, \uc2a4\ub9c8\ud2b8\uc2a4\ud1a0\uc5b4, \ucfe0\ud321, \uc790\uc0ac\ubab0 \ub4f1)"
+    },
+    "commission_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "\ud310\ub9e4 \uc218\uc218\ub8cc\uc728 (%)"
+    },
+    "settlement_period": {
+      "type": "string",
+      "description": "\uc815\uc0b0 \uc8fc\uae30 (\uc608: D+1, D+14)"
+    }
+  },
+  "required": [
+    "channel_name"
+  ]
+}
