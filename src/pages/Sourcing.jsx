@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Factory, Trash2 } from "lucide-react";
 import RfqGenerator from "@/components/sourcing/RfqGenerator";
 import QcTimeline from "@/components/sourcing/QcTimeline";
+import LandedCostBoard from "@/components/sourcing/LandedCostBoard";
 
 const STAGE_LABEL = {
   sketch: "스케치",
@@ -169,6 +170,7 @@ export default function Sourcing() {
               <div className="flex border-b border-border">
                 {[
                   { key: "qc", label: "QC 타임라인" },
+                  { key: "cost", label: "원가/물류" },
                   { key: "rfq", label: "RFQ 생성기" },
                 ].map((tab) => (
                   <button
@@ -187,6 +189,7 @@ export default function Sourcing() {
 
               <div className="p-5">
                 {activeTab === "qc" && <QcTimeline project={currentProject} />}
+                {activeTab === "cost" && <LandedCostBoard key={currentProject.id} project={currentProject} />}
                 {activeTab === "rfq" && <RfqGenerator project={currentProject} onRfqSaved={saveRfq} />}
               </div>
             </div>

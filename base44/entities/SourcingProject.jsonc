@@ -77,6 +77,84 @@
     },
     "notes": {
       "type": "string"
+    },
+    "factory_price_usd": {
+      "type": "number",
+      "description": "\uacf5\uc7a5 \ub2e8\uac00 USD"
+    },
+    "total_order_qty": {
+      "type": "number",
+      "description": "\ucd1d \ubc1c\uc8fc \uc218\ub7c9"
+    },
+    "deposit_amount_usd": {
+      "type": "number",
+      "description": "\uc120\uae08 USD"
+    },
+    "deposit_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\uc120\uae08 \uc1a1\uae08\uc77c"
+    },
+    "deposit_exchange_rate": {
+      "type": "number",
+      "description": "\uc120\uae08 \uc801\uc6a9 \ud658\uc728 (USD\u2192KRW)"
+    },
+    "balance_amount_usd": {
+      "type": "number",
+      "description": "\uc794\uae08 USD"
+    },
+    "balance_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\uc794\uae08 \uc1a1\uae08\uc77c"
+    },
+    "balance_exchange_rate": {
+      "type": "number",
+      "description": "\uc794\uae08 \uc801\uc6a9 \ud658\uc728 (USD\u2192KRW)"
+    },
+    "total_landed_cost_krw": {
+      "type": "number",
+      "description": "\ucd5c\uc885 \uc218\uc785 \uc6d0\uac00 KRW (\uc790\ub3d9 \uacc4\uc0b0)"
+    },
+    "production_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\uc0dd\uc0b0 \uc2dc\uc791\uc77c"
+    },
+    "production_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\uc0dd\uc0b0 \uc644\ub8cc \uc608\uc815/\uc2e4\uc81c\uc77c"
+    },
+    "etd": {
+      "type": "string",
+      "format": "date",
+      "description": "\ucd9c\ud56d \uc608\uc815\uc77c (ETD)"
+    },
+    "eta": {
+      "type": "string",
+      "format": "date",
+      "description": "\uc785\ud56d \uc608\uc815\uc77c (ETA)"
+    },
+    "forwarder_name": {
+      "type": "string",
+      "description": "\ubb3c\ub958\uc0ac \uc774\ub984"
+    },
+    "shipping_cost_krw": {
+      "type": "number",
+      "description": "\ud574\uc6b4/\ud56d\uacf5 \uc6b4\uc1a1\ube44 KRW"
+    },
+    "customs_tax_krw": {
+      "type": "number",
+      "description": "\uad00\uc138 KRW"
+    },
+    "vat_krw": {
+      "type": "number",
+      "description": "\ubd80\uac00\uc138 KRW"
+    },
+    "inland_freight_krw": {
+      "type": "number",
+      "description": "\uad6d\ub0b4 \ub0b4\ub959/\uc6a9\ub2ec \uc6b4\uc1a1\ube44 KRW"
     }
   },
   "required": [
