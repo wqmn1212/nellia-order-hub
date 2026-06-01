@@ -94,6 +94,10 @@
       "type": "number",
       "description": "\ucd1d \ubc1c\uc8fc \uc218\ub7c9"
     },
+    "sample_cost_krw": {
+      "type": "number",
+      "description": "\uc0d8\ud50c \uad6c\ub9e4\ube44\uc6a9 KRW"
+    },
     "deposit_amount_usd": {
       "type": "number",
       "description": "\uc120\uae08 USD"
@@ -162,7 +166,34 @@
     },
     "inland_freight_krw": {
       "type": "number",
-      "description": "\uad6d\ub0b4 \ub0b4\ub959/\uc6a9\ub2ec \uc6b4\uc1a1\ube44 KRW"
+      "description": "\uad6d\ub0b4 \ub0b4\ub959/\uc6a9\ub2ec \uc6b4\uc1a1\ube44 KRW (\uc778\ucc9c\ud56d\u2192\ucc3d\uace0)"
+    },
+    "ad_campaigns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "medium": {
+            "type": "string",
+            "description": "\uad11\uace0 \ub9e4\uccb4 (\uc608: \uba54\ud0c0, \uad6c\uae00, \ub124\uc774\ubc84)"
+          },
+          "amount_krw": {
+            "type": "number",
+            "description": "\uad11\uace0\ube44 KRW"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "\uad11\uace0 \uc2dc\uc791\uc77c"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "description": "\uad11\uace0 \uc885\ub8cc\uc77c"
+          }
+        }
+      },
+      "description": "\uad11\uace0 \ucea0\ud398\uc778 \ubaa9\ub85d"
     }
   },
   "required": [

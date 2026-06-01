@@ -2,21 +2,23 @@ import React, { useState, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Save, Settings2, Trash2 } from "lucide-react";
+import { Save, Settings2, Trash2, Megaphone } from "lucide-react";
+import AdCampaignDialog from "@/components/sourcing/AdCampaignDialog";
 
 const NUM_FIELDS = [
   "factory_price_usd", "total_order_qty",
   "deposit_amount_usd", "deposit_exchange_rate",
   "balance_amount_usd", "balance_exchange_rate",
-  "shipping_cost_krw", "customs_tax_krw", "vat_krw", "inland_freight_krw",
+  "shipping_cost_krw", "customs_tax_krw", "vat_krw", "inland_freight_krw", "sample_cost_krw",
 ];
 const FIELDS = [...NUM_FIELDS, "product_name", "model_number", "etd", "eta"];
 
-function calcPerUnit(f) {
+function calcPerUnit(f, adTotal = 0) {
   const pay = (Number(f.deposit_amount_usd) || 0) * (Number(f.deposit_exchange_rate) || 0)
     + (Number(f.balance_amount_usd) || 0) * (Number(f.balance_exchange_rate) || 0);
   const extra = (Number(f.shipping_cost_krw) || 0) + (Number(f.customs_tax_krw) || 0)
-    + (Number(f.vat_krw) || 0) + (Number(f.inland_freight_krw) || 0);
+    + (Number(f.vat_krw) || 0) + (Number(f.inland_freight_krw) || 0)
+    + (Number(f.sample_cost_krw) || 0) + (Number(adTotal) || 0);
   const total = pay + extra;
   const qty = Number(f.total_order_qty) || 0;
   return { total, perUnit: qty > 0 ? Math.round(total / qty) : 0 };
@@ -42,8 +44,10 @@ export default function CostRow({ project, onDetail }) {
     return init;
   });
   const [dirty, setDirty] = useState(false);
+  const [showAd, setShowAd] = useState(false);
   const set = (k) => (e) => { setF((p) => ({ ...p, [k]: e.target.value })); setDirty(true); };
-  const c = useMemo(() => calcPerUnit(f), [f]);
+  const adTotal = (project.ad_campaigns || []).reduce((s, a) => s + (Number(a.amount_krw) || 0), 0);
+  const c = useMemo(() => calcPerUnit(f, adTotal), [f, adTotal]);
   const won = (n) => `₩${Math.round(n).toLocaleString()}`;
 
   const save = useMutation({
@@ -81,6 +85,8 @@ export default function CostRow({ project, onDetail }) {
       <Cell value={f.customs_tax_krw} onChange={set("customs_tax_krw")} w="w-20" />
       <Cell value={f.vat_krw} onChange={set("vat_krw")} w="w-20" />
       <Cell value={f.inland_freight_krw} onChange={set("inland_freight_krw")} w="w-20" />
+      <Cell value={f.sample_cost_krw} onChange={set("sample_cost_krw")} w="w-20" />
+      <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">{won(adTotal)}</td>
       <td className="px-2 py-1.5 border-r border-border/60 text-right font-bold text-red-600 tabular-nums whitespace-nowrap text-sm">
         {won(c.perUnit)}
       </td>
@@ -94,12 +100,16 @@ export default function CostRow({ project, onDetail }) {
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onDetail(project)} title="QC/RFQ">
             <Settings2 className="w-3.5 h-3.5" />
           </Button>
+          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setShowAd(true)} title="송금일정·광고비">
+            <Megaphone className="w-3.5 h-3.5" />
+          </Button>
           <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive"
             onClick={() => del.mutate()} title="삭제">
             <Trash2 className="w-3.5 h-3.5" />
           </Button>
         </div>
       </td>
+      <AdCampaignDialog project={project} open={showAd} onOpenChange={setShowAd} />
     </tr>
   );
 }
