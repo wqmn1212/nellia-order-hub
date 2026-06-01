@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import CostTable from "@/components/sourcing/CostTable";
 import RfqGenerator from "@/components/sourcing/RfqGenerator";
@@ -15,19 +16,42 @@ export default function Sourcing() {
   const [showNew, setShowNew] = useState(false);
   const [detail, setDetail] = useState(null);
   const [detailTab, setDetailTab] = useState("qc");
-  const [form, setForm] = useState({ product_name: "", model_number: "", product_type: "", factory_name: "", factory_country: "중국" });
+  const [form, setForm] = useState({ product_name: "", model_number: "", product_type: "", factory_name: "", factory_country: "중국", product_id: "" });
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["sourcing"],
     queryFn: () => base44.entities.SourcingProject.list("-created_date", 100),
   });
 
+  const { data: products = [] } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => base44.entities.Product.list("-created_date", 200),
+  });
+
   const createProject = useMutation({
-    mutationFn: (data) => base44.entities.SourcingProject.create({ ...data, current_stage: "sketch", stage_logs: [] }),
+    mutationFn: async (data) => {
+      let productId = data.product_id;
+      // 제품 DB에 없으면 자동 등록
+      if (!productId) {
+        const created = await base44.entities.Product.create({ name: data.product_name, model_number: data.model_number });
+        productId = created.id;
+      }
+      return base44.entities.SourcingProject.create({
+        product_name: data.product_name,
+        model_number: data.model_number,
+        product_type: data.product_type,
+        factory_name: data.factory_name,
+        factory_country: data.factory_country,
+        product_id: productId,
+        current_stage: "sketch",
+        stage_logs: [],
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sourcing"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       setShowNew(false);
-      setForm({ product_name: "", model_number: "", product_type: "", factory_name: "", factory_country: "중국" });
+      setForm({ product_name: "", model_number: "", product_type: "", factory_name: "", factory_country: "중국", product_id: "" });
     },
   });
 
@@ -61,8 +85,25 @@ export default function Sourcing() {
       {/* 신규 제품 */}
       <Dialog open={showNew} onOpenChange={setShowNew}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>신규 제품 등록</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>신규 소싱 제품 등록</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-2">
+            <div>
+              <Label>제품 DB 연동</Label>
+              <Select value={form.product_id || "new"} onValueChange={(v) => {
+                if (v === "new") { setForm({ ...form, product_id: "", product_name: "", model_number: "" }); return; }
+                const p = products.find((x) => x.id === v);
+                setForm({ ...form, product_id: v, product_name: p?.name || "", model_number: p?.model_number || "" });
+              }}>
+                <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="new">+ 새 제품 직접 입력</SelectItem>
+                  {products.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}{p.model_number ? ` (${p.model_number})` : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">기존 제품을 선택하거나, 새로 입력하면 제품 DB에도 자동 등록됩니다.</p>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>제품명 *</Label>
