@@ -6,6 +6,10 @@
       "type": "string",
       "description": "\uc81c\ud488\uba85"
     },
+    "model_number": {
+      "type": "string",
+      "description": "\ud488\ubc88/\ubaa8\ub378\uba85 (\uc608: NEL330-PK)"
+    },
     "product_type": {
       "type": "string",
       "description": "\uc81c\ud488 \uc885\ub958 (\uc608: \ub3c4\ub11b \ube57, \ub4dc\ub77c\uc774\uae30)"
