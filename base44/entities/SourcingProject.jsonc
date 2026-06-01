@@ -94,7 +94,7 @@
       "type": "number",
       "description": "\ucd1d \ubc1c\uc8fc \uc218\ub7c9"
     },
-    "sample_cost_krw": {
+    "sample_cost_usd": {
       "type": "number",
       "description": "\uc0d8\ud50c \uad6c\ub9e4\ube44\uc6a9 KRW"
     },
