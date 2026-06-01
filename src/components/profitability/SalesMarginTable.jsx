@@ -14,6 +14,11 @@ export default function SalesMarginTable({ channels, projects }) {
     queryFn: () => base44.entities.MarginScenario.list("-created_date", 100),
   });
 
+  const { data: products = [] } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => base44.entities.Product.list("-created_date", 200),
+  });
+
   const addRow = useMutation({
     mutationFn: () => base44.entities.MarginScenario.create({ commission_rate: 0, sale_price_krw: 0 }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["margin-scenarios"] }),
@@ -44,7 +49,7 @@ export default function SalesMarginTable({ channels, projects }) {
             ) : scenarios.length === 0 ? (
               <tr><td colSpan={COLS.length} className="py-10 text-center text-muted-foreground">‘행 추가’로 판매 시나리오를 만들어보세요</td></tr>
             ) : (
-              scenarios.map((s) => <MarginRow key={s.id} scenario={s} channels={channels} projects={projects} />)
+              scenarios.map((s) => <MarginRow key={s.id} scenario={s} channels={channels} projects={projects} products={products} />)
             )}
           </tbody>
         </table>
