@@ -12,6 +12,7 @@ const NAV = [
   { to: "/upload", label: "주문 업로드", icon: Upload },
   { to: "/analytics", label: "KPI 분석", icon: BarChart2 },
   { to: "/marketing-kpi", label: "마케팅 성과", icon: Megaphone },
+  { to: "/ad-hub", label: "광고 관리 (Ad-Hub)", icon: Megaphone },
   { to: "/products", label: "제품 DB", icon: ShoppingBag },
   { to: "/ai-team", label: "AI 직원팀", icon: BotMessageSquare },
   { to: "/sourcing", label: "글로벌 소싱", icon: Globe },

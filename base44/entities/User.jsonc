@@ -13,5 +13,6 @@
       "default": "cs",
       "description": "\uc0ac\uc6a9\uc790 \uc5ed\ud560: admin(\ucd1d\uad04), marketing(\ub9c8\ucf00\ud130), logistics(\ubb3c\ub958), cs(\uace0\uac1d\ub9cc\uc871)"
     }
-  }
+  },
+  "required": []
 }

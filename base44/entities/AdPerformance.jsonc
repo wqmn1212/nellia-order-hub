@@ -1,0 +1,55 @@
+{
+  "name": "AdPerformance",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "\ub370\uc774\ud130 \uae30\uc900 \uc77c\uc790"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "meta",
+        "tiktok",
+        "google",
+        "naver",
+        "coupang"
+      ],
+      "description": "\uad11\uace0 \ub9e4\uccb4"
+    },
+    "campaign_name": {
+      "type": "string",
+      "description": "\ucea0\ud398\uc778 \uc774\ub984"
+    },
+    "spend_krw": {
+      "type": "number",
+      "default": 0,
+      "description": "\ub2f9\uc77c \uc9c0\ucd9c \uad11\uace0\ube44 KRW"
+    },
+    "impressions": {
+      "type": "number",
+      "default": 0,
+      "description": "\ub178\ucd9c\uc218"
+    },
+    "clicks": {
+      "type": "number",
+      "default": 0,
+      "description": "\ud074\ub9ad\uc218"
+    },
+    "conversions": {
+      "type": "number",
+      "default": 0,
+      "description": "\uc804\ud658\uc218"
+    },
+    "conversion_value_krw": {
+      "type": "number",
+      "default": 0,
+      "description": "\uc804\ud658 \ub9e4\ucd9c\uc561 KRW"
+    }
+  },
+  "required": [
+    "date",
+    "platform"
+  ]
+}
