@@ -10,7 +10,7 @@ const COLS = [
   { label: "선금환율" },
   { label: "잔금($)" },
   { label: "잔금환율" },
-  { label: "물류비(₩)" },
+  { label: "물류비($/¥)" },
   { label: "관세(₩)" },
   { label: "부가세(₩)" },
   { label: "용달비(₩)" },

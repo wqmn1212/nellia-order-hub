@@ -2,14 +2,15 @@ import React, { useState, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Save, Settings2, Trash2, Megaphone } from "lucide-react";
+import { Save, Settings2, Trash2, Megaphone, Ship } from "lucide-react";
 import AdCampaignDialog from "@/components/sourcing/AdCampaignDialog";
+import ShippingCostDialog from "@/components/sourcing/ShippingCostDialog";
 
 const NUM_FIELDS = [
   "factory_price_usd", "total_order_qty",
   "deposit_amount_usd", "deposit_exchange_rate",
   "balance_amount_usd", "balance_exchange_rate",
-  "shipping_cost_krw", "customs_tax_krw", "vat_krw", "inland_freight_krw", "sample_cost_krw",
+  "customs_tax_krw", "vat_krw", "inland_freight_krw", "sample_cost_krw",
 ];
 const FIELDS = [...NUM_FIELDS, "product_name", "model_number", "etd", "eta"];
 
@@ -45,9 +46,11 @@ export default function CostRow({ project, onDetail }) {
   });
   const [dirty, setDirty] = useState(false);
   const [showAd, setShowAd] = useState(false);
+  const [showShip, setShowShip] = useState(false);
   const set = (k) => (e) => { setF((p) => ({ ...p, [k]: e.target.value })); setDirty(true); };
   const adTotal = (project.ad_campaigns || []).reduce((s, a) => s + (Number(a.amount_krw) || 0), 0);
-  const c = useMemo(() => calcPerUnit(f, adTotal), [f, adTotal]);
+  const shippingKrw = Number(project.shipping_cost_krw) || 0;
+  const c = useMemo(() => calcPerUnit({ ...f, shipping_cost_krw: shippingKrw }, adTotal), [f, adTotal, shippingKrw]);
   const won = (n) => `₩${Math.round(n).toLocaleString()}`;
 
   const save = useMutation({
@@ -81,7 +84,18 @@ export default function CostRow({ project, onDetail }) {
       <Cell value={f.deposit_exchange_rate} onChange={set("deposit_exchange_rate")} w="w-16" />
       <Cell value={f.balance_amount_usd} onChange={set("balance_amount_usd")} w="w-16" />
       <Cell value={f.balance_exchange_rate} onChange={set("balance_exchange_rate")} w="w-16" />
-      <Cell value={f.shipping_cost_krw} onChange={set("shipping_cost_krw")} w="w-24" />
+      <td className="px-1.5 py-1.5 border-r border-border/60">
+        <button onClick={() => setShowShip(true)}
+          className="w-28 h-8 px-2 text-xs rounded border border-input bg-transparent hover:bg-secondary/60 flex items-center justify-between gap-1">
+          <span className="tabular-nums truncate">{shippingKrw ? `₩${shippingKrw.toLocaleString()}` : "입력"}</span>
+          <Ship className="w-3 h-3 text-muted-foreground shrink-0" />
+        </button>
+        {project.shipping_cost_foreign ? (
+          <div className="text-[10px] text-muted-foreground mt-0.5 truncate w-28">
+            {project.shipping_currency === "RMB" ? "¥" : "$"}{Number(project.shipping_cost_foreign).toLocaleString()} @{project.shipping_exchange_rate || "-"} · {project.shipping_date || "-"}
+          </div>
+        ) : null}
+      </td>
       <Cell value={f.customs_tax_krw} onChange={set("customs_tax_krw")} w="w-20" />
       <Cell value={f.vat_krw} onChange={set("vat_krw")} w="w-20" />
       <Cell value={f.inland_freight_krw} onChange={set("inland_freight_krw")} w="w-20" />
@@ -110,6 +124,7 @@ export default function CostRow({ project, onDetail }) {
         </div>
       </td>
       <AdCampaignDialog project={project} open={showAd} onOpenChange={setShowAd} />
+      <ShippingCostDialog project={project} open={showShip} onOpenChange={setShowShip} />
     </tr>
   );
 }

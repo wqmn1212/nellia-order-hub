@@ -152,9 +152,31 @@
       "type": "string",
       "description": "\ubb3c\ub958\uc0ac \uc774\ub984"
     },
+    "shipping_currency": {
+      "type": "string",
+      "enum": [
+        "USD",
+        "RMB"
+      ],
+      "default": "USD",
+      "description": "\ubb3c\ub958\ube44 \uc785\ub825 \ud1b5\ud654 (\uc911\uad6d\u2192\ud55c\uad6d \uc6b4\uc1a1\ube44)"
+    },
+    "shipping_cost_foreign": {
+      "type": "number",
+      "description": "\ubb3c\ub958\ube44 \uc678\ud654 \uae08\uc561 (USD \ub610\ub294 RMB)"
+    },
+    "shipping_exchange_rate": {
+      "type": "number",
+      "description": "\ubb3c\ub958\ube44 \uc801\uc6a9 \ud658\uc728 (\uc678\ud654\u2192KRW)"
+    },
+    "shipping_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\ubb3c\ub958\ube44 \ud658\uc728 \uae30\uc900\uc77c"
+    },
     "shipping_cost_krw": {
       "type": "number",
-      "description": "\ud574\uc6b4/\ud56d\uacf5 \uc6b4\uc1a1\ube44 KRW"
+      "description": "\ubb3c\ub958\ube44 KRW (\uc678\ud654\u00d7\ud658\uc728 \uc790\ub3d9 \ud658\uc0b0)"
     },
     "customs_tax_krw": {
       "type": "number",
