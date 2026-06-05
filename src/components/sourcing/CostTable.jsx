@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
-import { Factory, Plus } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { Factory, Plus, Pencil, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -23,10 +25,12 @@ const FIXED_LEFT = [
 ];
 
 export default function CostTable({ projects, isLoading, onDetail }) {
+  const queryClient = useQueryClient();
   const [showAddCol, setShowAddCol] = useState(false);
   const [newCol, setNewCol] = useState("");
+  const [editingCol, setEditingCol] = useState(null); // label being edited
+  const [editVal, setEditVal] = useState("");
 
-  // 모든 프로젝트의 extra_costs label을 모아 동적 열 구성
   const [extraCols, setExtraCols] = useState(() => {
     const set = new Set();
     (projects || []).forEach((p) =>
@@ -35,7 +39,6 @@ export default function CostTable({ projects, isLoading, onDetail }) {
     return Array.from(set);
   });
 
-  // projects가 바뀌면 새로 등장한 label도 병합
   useMemo(() => {
     setExtraCols((prev) => {
       const set = new Set(prev);
@@ -46,12 +49,58 @@ export default function CostTable({ projects, isLoading, onDetail }) {
     });
   }, [projects]);
 
+  // 열 이름 변경: 모든 프로젝트의 해당 label 동기화
+  const renameCol = useMutation({
+    mutationFn: async ({ from, to }) => {
+      const affected = (projects || []).filter((p) =>
+        (p.extra_costs || []).some((e) => e.label === from)
+      );
+      await Promise.all(affected.map((p) =>
+        base44.entities.SourcingProject.update(p.id, {
+          extra_costs: (p.extra_costs || []).map((e) =>
+            e.label === from ? { ...e, label: to } : e
+          ),
+        })
+      ));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sourcing"] }),
+  });
+
+  // 열 삭제: 모든 프로젝트의 해당 항목 제거
+  const deleteCol = useMutation({
+    mutationFn: async (label) => {
+      const affected = (projects || []).filter((p) =>
+        (p.extra_costs || []).some((e) => e.label === label)
+      );
+      await Promise.all(affected.map((p) =>
+        base44.entities.SourcingProject.update(p.id, {
+          extra_costs: (p.extra_costs || []).filter((e) => e.label !== label),
+        })
+      ));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sourcing"] }),
+  });
+
   const addCol = () => {
     const name = newCol.trim();
     if (!name || extraCols.includes(name)) { setShowAddCol(false); setNewCol(""); return; }
     setExtraCols((p) => [...p, name]);
     setShowAddCol(false);
     setNewCol("");
+  };
+
+  const startEdit = (label) => { setEditingCol(label); setEditVal(label); };
+  const confirmEdit = () => {
+    const to = editVal.trim();
+    if (to && to !== editingCol && !extraCols.includes(to)) {
+      setExtraCols((cols) => cols.map((c) => (c === editingCol ? to : c)));
+      renameCol.mutate({ from: editingCol, to });
+    }
+    setEditingCol(null);
+  };
+  const removeCol = (label) => {
+    setExtraCols((cols) => cols.filter((c) => c !== label));
+    deleteCol.mutate(label);
   };
 
   if (isLoading) {
@@ -87,7 +136,25 @@ export default function CostTable({ projects, isLoading, onDetail }) {
               {extraCols.map((label) => (
                 <th key={label}
                   className="px-2 py-2.5 text-left font-semibold text-primary whitespace-nowrap border-r border-border/60 bg-accent/40">
-                  {label}
+                  {editingCol === label ? (
+                    <div className="flex items-center gap-1">
+                      <input autoFocus value={editVal} onChange={(e) => setEditVal(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") confirmEdit(); if (e.key === "Escape") setEditingCol(null); }}
+                        className="w-24 h-7 px-1.5 text-xs rounded border border-input bg-card focus:outline-none focus:ring-1 focus:ring-ring" />
+                      <button onClick={confirmEdit} className="text-green-600 hover:text-green-700"><Check className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => setEditingCol(null)} className="text-muted-foreground hover:text-foreground"><X className="w-3.5 h-3.5" /></button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 group">
+                      <span>{label}</span>
+                      <button onClick={() => startEdit(label)} className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary" title="이름 수정">
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                      <button onClick={() => removeCol(label)} className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive" title="열 삭제">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </th>
               ))}
               <th className="px-1 py-2.5 border-r border-border/60 bg-accent/40">

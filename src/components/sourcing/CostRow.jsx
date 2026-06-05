@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Save, Settings2, Trash2, Megaphone, Ship } from "lucide-react";
 import AdCampaignDialog from "@/components/sourcing/AdCampaignDialog";
 import ShippingCostDialog from "@/components/sourcing/ShippingCostDialog";
+import ExtraCostCell from "@/components/sourcing/ExtraCostCell";
+
+const extraToKrw = (v) => {
+  if (!v) return 0;
+  const rate = v.currency === "KRW" ? 1 : (Number(v.exchange_rate) || 0);
+  return Math.round((Number(v.amount) || 0) * rate);
+};
 
 const NUM_FIELDS = [
   "factory_price_usd", "total_order_qty",
@@ -44,10 +51,12 @@ export default function CostRow({ project, extraCols = [], onDetail }) {
     FIELDS.forEach((k) => { init[k] = project[k] ?? ""; });
     return init;
   });
-  // 추가비용 열별 KRW 금액 { label: amount }
+  // 추가비용 열별 { label: { currency, amount, exchange_rate } }
   const [extra, setExtra] = useState(() => {
     const m = {};
-    (project.extra_costs || []).forEach((e) => { if (e.label) m[e.label] = e.amount_krw ?? e.amount ?? ""; });
+    (project.extra_costs || []).forEach((e) => {
+      if (e.label) m[e.label] = { currency: e.currency || "KRW", amount: e.amount ?? "", exchange_rate: e.exchange_rate ?? "" };
+    });
     return m;
   });
   const [dirty, setDirty] = useState(false);
@@ -55,10 +64,10 @@ export default function CostRow({ project, extraCols = [], onDetail }) {
   const [showShip, setShowShip] = useState(false);
 
   const set = (k) => (e) => { setF((p) => ({ ...p, [k]: e.target.value })); setDirty(true); };
-  const setExtraVal = (label) => (e) => { setExtra((p) => ({ ...p, [label]: e.target.value })); setDirty(true); };
+  const setExtraVal = (label) => (val) => { setExtra((p) => ({ ...p, [label]: val })); setDirty(true); };
 
   const adTotal = (project.ad_campaigns || []).reduce((s, a) => s + (Number(a.amount_krw) || 0), 0);
-  const extraTotal = extraCols.reduce((s, label) => s + (Number(extra[label]) || 0), 0);
+  const extraTotal = extraCols.reduce((s, label) => s + extraToKrw(extra[label]), 0);
   const shippingKrw = Number(project.shipping_cost_krw) || 0;
   const c = useMemo(() => calcPerUnit({ ...f, shipping_cost_krw: shippingKrw }, adTotal, extraTotal), [f, adTotal, shippingKrw, extraTotal]);
   const won = (n) => `₩${Math.round(n).toLocaleString()}`;
@@ -70,14 +79,18 @@ export default function CostRow({ project, extraCols = [], onDetail }) {
       payload.etd = f.etd || undefined;
       payload.eta = f.eta || undefined;
       payload.extra_costs = extraCols
-        .filter((label) => extra[label] !== "" && extra[label] != null)
-        .map((label) => ({
-          label,
-          currency: "KRW",
-          amount: Number(extra[label]) || 0,
-          exchange_rate: 1,
-          amount_krw: Number(extra[label]) || 0,
-        }));
+        .filter((label) => extra[label] && extra[label].amount !== "" && extra[label].amount != null)
+        .map((label) => {
+          const v = extra[label];
+          const isKrw = v.currency === "KRW";
+          return {
+            label,
+            currency: v.currency || "KRW",
+            amount: Number(v.amount) || 0,
+            exchange_rate: isKrw ? 1 : (Number(v.exchange_rate) || 0),
+            amount_krw: extraToKrw(v),
+          };
+        });
       payload.total_landed_cost_krw = c.total;
       return base44.entities.SourcingProject.update(project.id, payload);
     },
@@ -120,7 +133,7 @@ export default function CostRow({ project, extraCols = [], onDetail }) {
       <Cell value={f.inland_freight_krw} onChange={set("inland_freight_krw")} w="w-20" />
       <Cell value={f.sample_cost_krw} onChange={set("sample_cost_krw")} w="w-20" />
       {extraCols.map((label) => (
-        <Cell key={label} value={extra[label]} onChange={setExtraVal(label)} w="w-20" placeholder="₩" />
+        <ExtraCostCell key={label} value={extra[label]} onChange={setExtraVal(label)} />
       ))}
       <td className="px-1.5 py-1.5 border-r border-border/60 bg-accent/10" />
       <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">{won(adTotal)}</td>
