@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Save, Settings2, Trash2, Megaphone, Ship, ListPlus } from "lucide-react";
+import { Save, Settings2, Trash2, Megaphone, Ship, ListPlus, Plus } from "lucide-react";
 import AdCampaignDialog from "@/components/sourcing/AdCampaignDialog";
 import ShippingCostDialog from "@/components/sourcing/ShippingCostDialog";
 import ExtraCostsDialog from "@/components/sourcing/ExtraCostsDialog";
@@ -128,6 +128,9 @@ export default function CostRow({ project, onDetail }) {
           </Button>
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onDetail(project)} title="QC/RFQ">
             <Settings2 className="w-3.5 h-3.5" />
+          </Button>
+          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setShowExtra(true)} title="추가비용 항목 추가">
+            <Plus className="w-3.5 h-3.5" />
           </Button>
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setShowAd(true)} title="송금일정·광고비">
             <Megaphone className="w-3.5 h-3.5" />
