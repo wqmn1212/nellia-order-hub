@@ -6,6 +6,7 @@ import PlatformSummaryCards from "@/components/adhub/PlatformSummaryCards";
 import AdTrendChart from "@/components/adhub/AdTrendChart";
 import AiInsightsPanel from "@/components/adhub/AiInsightsPanel";
 import CampaignControlTable from "@/components/adhub/CampaignControlTable";
+import PerformanceTable from "@/components/adhub/PerformanceTable";
 
 export default function AdHub() {
   const { data: adRows = [] } = useQuery({
@@ -44,6 +45,8 @@ export default function AdHub() {
       </div>
 
       <CampaignControlTable campaigns={campaigns} />
+
+      <PerformanceTable rows={adRows} />
     </div>
   );
 }
