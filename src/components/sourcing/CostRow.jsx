@@ -2,10 +2,9 @@ import React, { useState, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Save, Settings2, Trash2, Megaphone, Ship, Coins } from "lucide-react";
+import { Save, Settings2, Trash2, Megaphone, Ship } from "lucide-react";
 import AdCampaignDialog from "@/components/sourcing/AdCampaignDialog";
 import ShippingCostDialog from "@/components/sourcing/ShippingCostDialog";
-import ExtraCostsDialog from "@/components/sourcing/ExtraCostsDialog";
 
 const NUM_FIELDS = [
   "factory_price_usd", "total_order_qty",
@@ -38,22 +37,28 @@ const Cell = ({ value, onChange, w = "w-20", type = "number", placeholder }) => 
   </td>
 );
 
-export default function CostRow({ project, onDetail }) {
+export default function CostRow({ project, extraCols = [], onDetail }) {
   const queryClient = useQueryClient();
   const [f, setF] = useState(() => {
     const init = {};
     FIELDS.forEach((k) => { init[k] = project[k] ?? ""; });
     return init;
   });
+  // 추가비용 열별 KRW 금액 { label: amount }
+  const [extra, setExtra] = useState(() => {
+    const m = {};
+    (project.extra_costs || []).forEach((e) => { if (e.label) m[e.label] = e.amount_krw ?? e.amount ?? ""; });
+    return m;
+  });
   const [dirty, setDirty] = useState(false);
   const [showAd, setShowAd] = useState(false);
   const [showShip, setShowShip] = useState(false);
-  const [showExtra, setShowExtra] = useState(false);
 
   const set = (k) => (e) => { setF((p) => ({ ...p, [k]: e.target.value })); setDirty(true); };
+  const setExtraVal = (label) => (e) => { setExtra((p) => ({ ...p, [label]: e.target.value })); setDirty(true); };
 
   const adTotal = (project.ad_campaigns || []).reduce((s, a) => s + (Number(a.amount_krw) || 0), 0);
-  const extraTotal = (project.extra_costs || []).reduce((s, e) => s + (Number(e.amount_krw) || 0), 0);
+  const extraTotal = extraCols.reduce((s, label) => s + (Number(extra[label]) || 0), 0);
   const shippingKrw = Number(project.shipping_cost_krw) || 0;
   const c = useMemo(() => calcPerUnit({ ...f, shipping_cost_krw: shippingKrw }, adTotal, extraTotal), [f, adTotal, shippingKrw, extraTotal]);
   const won = (n) => `₩${Math.round(n).toLocaleString()}`;
@@ -64,6 +69,15 @@ export default function CostRow({ project, onDetail }) {
       NUM_FIELDS.forEach((k) => { payload[k] = Number(f[k]) || 0; });
       payload.etd = f.etd || undefined;
       payload.eta = f.eta || undefined;
+      payload.extra_costs = extraCols
+        .filter((label) => extra[label] !== "" && extra[label] != null)
+        .map((label) => ({
+          label,
+          currency: "KRW",
+          amount: Number(extra[label]) || 0,
+          exchange_rate: 1,
+          amount_krw: Number(extra[label]) || 0,
+        }));
       payload.total_landed_cost_krw = c.total;
       return base44.entities.SourcingProject.update(project.id, payload);
     },
@@ -105,13 +119,10 @@ export default function CostRow({ project, onDetail }) {
       <Cell value={f.vat_krw} onChange={set("vat_krw")} w="w-20" />
       <Cell value={f.inland_freight_krw} onChange={set("inland_freight_krw")} w="w-20" />
       <Cell value={f.sample_cost_krw} onChange={set("sample_cost_krw")} w="w-20" />
-      <td className="px-1.5 py-1.5 border-r border-border/60 bg-accent/10">
-        <button onClick={() => setShowExtra(true)}
-          className="w-24 h-8 px-2 text-xs rounded border border-input bg-transparent hover:bg-secondary/60 flex items-center justify-between gap-1">
-          <span className="tabular-nums truncate">{extraTotal ? `₩${extraTotal.toLocaleString()}` : "관리"}</span>
-          <Coins className="w-3 h-3 text-muted-foreground shrink-0" />
-        </button>
-      </td>
+      {extraCols.map((label) => (
+        <Cell key={label} value={extra[label]} onChange={setExtraVal(label)} w="w-20" placeholder="₩" />
+      ))}
+      <td className="px-1.5 py-1.5 border-r border-border/60 bg-accent/10" />
       <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">{won(adTotal)}</td>
       <td className="px-2 py-1.5 border-r border-border/60 text-right font-bold text-red-600 tabular-nums whitespace-nowrap text-sm">
         {won(c.perUnit)}
@@ -137,7 +148,6 @@ export default function CostRow({ project, onDetail }) {
       </td>
       <AdCampaignDialog project={project} open={showAd} onOpenChange={setShowAd} />
       <ShippingCostDialog project={project} open={showShip} onOpenChange={setShowShip} />
-      <ExtraCostsDialog project={project} open={showExtra} onOpenChange={setShowExtra} />
     </tr>
   );
 }
