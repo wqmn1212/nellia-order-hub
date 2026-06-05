@@ -111,7 +111,7 @@ export default function CostRow({ project, onDetail }) {
         </button>
         {(project.extra_costs || []).length ? (
           <div className="text-[10px] text-muted-foreground mt-0.5 truncate w-28">
-            {(project.extra_costs || []).map((e) => e.label).join(", ")}
+            {(project.extra_costs || []).map((e) => `${e.label}(${e.currency || "KRW"})`).join(", ")}
           </div>
         ) : null}
       </td>

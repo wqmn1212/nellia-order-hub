@@ -199,9 +199,32 @@
             "type": "string",
             "description": "\ube44\uc6a9 \ud56d\ubaa9\uba85 (\uc608: KC\uc778\uc99d\ube44\uc6a9, \uac80\uc0ac\ube44)"
           },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "KRW",
+              "USD",
+              "RMB"
+            ],
+            "default": "KRW",
+            "description": "\uc785\ub825 \ud1b5\ud654"
+          },
+          "amount": {
+            "type": "number",
+            "description": "\uc785\ub825 \ud1b5\ud654 \uae30\uc900 \uae08\uc561"
+          },
+          "exchange_rate": {
+            "type": "number",
+            "description": "\uc801\uc6a9 \ud658\uc728 (\uc678\ud654\u2192KRW, KRW\uc77c \uacbd\uc6b0 1)"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "\ud658\uc728 \uae30\uc900\uc77c"
+          },
           "amount_krw": {
             "type": "number",
-            "description": "\ube44\uc6a9 \uae08\uc561 KRW"
+            "description": "KRW \ud658\uc0b0 \uae08\uc561 (\uc790\ub3d9 \uacc4\uc0b0)"
           }
         }
       },
