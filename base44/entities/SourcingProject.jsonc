@@ -190,6 +190,23 @@
       "type": "number",
       "description": "\uad6d\ub0b4 \ub0b4\ub959/\uc6a9\ub2ec \uc6b4\uc1a1\ube44 KRW (\uc778\ucc9c\ud56d\u2192\ucc3d\uace0)"
     },
+    "extra_costs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "\ube44\uc6a9 \ud56d\ubaa9\uba85 (\uc608: KC\uc778\uc99d\ube44\uc6a9, \uac80\uc0ac\ube44)"
+          },
+          "amount_krw": {
+            "type": "number",
+            "description": "\ube44\uc6a9 \uae08\uc561 KRW"
+          }
+        }
+      },
+      "description": "\ucd94\uac00 \ube44\uc6a9 \ud56d\ubaa9 \ubaa9\ub85d (KC\uc778\uc99d\ube44\uc6a9 \ub4f1 \uc0ac\uc6a9\uc790 \uc815\uc758 \ud56d\ubaa9)"
+    },
     "ad_campaigns": {
       "type": "array",
       "items": {

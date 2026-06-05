@@ -15,6 +15,7 @@ const COLS = [
   { label: "부가세(₩)" },
   { label: "용달비(₩)" },
   { label: "샘플비(₩)" },
+  { label: "추가비용(KC인증 등)" },
   { label: "광고비(₩)" },
   { label: "개당 수입원가(₩)" },
   { label: "입항(ETA)" },

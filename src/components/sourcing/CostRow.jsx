@@ -2,9 +2,10 @@ import React, { useState, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Save, Settings2, Trash2, Megaphone, Ship } from "lucide-react";
+import { Save, Settings2, Trash2, Megaphone, Ship, ListPlus } from "lucide-react";
 import AdCampaignDialog from "@/components/sourcing/AdCampaignDialog";
 import ShippingCostDialog from "@/components/sourcing/ShippingCostDialog";
+import ExtraCostsDialog from "@/components/sourcing/ExtraCostsDialog";
 
 const NUM_FIELDS = [
   "factory_price_usd", "total_order_qty",
@@ -14,12 +15,12 @@ const NUM_FIELDS = [
 ];
 const FIELDS = [...NUM_FIELDS, "product_name", "model_number", "etd", "eta"];
 
-function calcPerUnit(f, adTotal = 0) {
+function calcPerUnit(f, adTotal = 0, extraTotal = 0) {
   const pay = (Number(f.deposit_amount_usd) || 0) * (Number(f.deposit_exchange_rate) || 0)
     + (Number(f.balance_amount_usd) || 0) * (Number(f.balance_exchange_rate) || 0);
   const extra = (Number(f.shipping_cost_krw) || 0) + (Number(f.customs_tax_krw) || 0)
     + (Number(f.vat_krw) || 0) + (Number(f.inland_freight_krw) || 0)
-    + (Number(f.sample_cost_krw) || 0) + (Number(adTotal) || 0);
+    + (Number(f.sample_cost_krw) || 0) + (Number(adTotal) || 0) + (Number(extraTotal) || 0);
   const total = pay + extra;
   const qty = Number(f.total_order_qty) || 0;
   return { total, perUnit: qty > 0 ? Math.round(total / qty) : 0 };
@@ -47,10 +48,12 @@ export default function CostRow({ project, onDetail }) {
   const [dirty, setDirty] = useState(false);
   const [showAd, setShowAd] = useState(false);
   const [showShip, setShowShip] = useState(false);
+  const [showExtra, setShowExtra] = useState(false);
   const set = (k) => (e) => { setF((p) => ({ ...p, [k]: e.target.value })); setDirty(true); };
   const adTotal = (project.ad_campaigns || []).reduce((s, a) => s + (Number(a.amount_krw) || 0), 0);
+  const extraTotal = (project.extra_costs || []).reduce((s, e) => s + (Number(e.amount_krw) || 0), 0);
   const shippingKrw = Number(project.shipping_cost_krw) || 0;
-  const c = useMemo(() => calcPerUnit({ ...f, shipping_cost_krw: shippingKrw }, adTotal), [f, adTotal, shippingKrw]);
+  const c = useMemo(() => calcPerUnit({ ...f, shipping_cost_krw: shippingKrw }, adTotal, extraTotal), [f, adTotal, shippingKrw, extraTotal]);
   const won = (n) => `₩${Math.round(n).toLocaleString()}`;
 
   const save = useMutation({
@@ -100,6 +103,18 @@ export default function CostRow({ project, onDetail }) {
       <Cell value={f.vat_krw} onChange={set("vat_krw")} w="w-20" />
       <Cell value={f.inland_freight_krw} onChange={set("inland_freight_krw")} w="w-20" />
       <Cell value={f.sample_cost_krw} onChange={set("sample_cost_krw")} w="w-20" />
+      <td className="px-1.5 py-1.5 border-r border-border/60">
+        <button onClick={() => setShowExtra(true)}
+          className="w-28 h-8 px-2 text-xs rounded border border-input bg-transparent hover:bg-secondary/60 flex items-center justify-between gap-1">
+          <span className="tabular-nums truncate">{extraTotal ? `₩${extraTotal.toLocaleString()}` : "입력"}</span>
+          <ListPlus className="w-3 h-3 text-muted-foreground shrink-0" />
+        </button>
+        {(project.extra_costs || []).length ? (
+          <div className="text-[10px] text-muted-foreground mt-0.5 truncate w-28">
+            {(project.extra_costs || []).map((e) => e.label).join(", ")}
+          </div>
+        ) : null}
+      </td>
       <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">{won(adTotal)}</td>
       <td className="px-2 py-1.5 border-r border-border/60 text-right font-bold text-red-600 tabular-nums whitespace-nowrap text-sm">
         {won(c.perUnit)}
@@ -125,6 +140,7 @@ export default function CostRow({ project, onDetail }) {
       </td>
       <AdCampaignDialog project={project} open={showAd} onOpenChange={setShowAd} />
       <ShippingCostDialog project={project} open={showShip} onOpenChange={setShowShip} />
+      <ExtraCostsDialog project={project} open={showExtra} onOpenChange={setShowExtra} />
     </tr>
   );
 }
