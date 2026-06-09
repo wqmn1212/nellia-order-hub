@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import MarginRow from "@/components/profitability/MarginRow";
 
-const COLS = ["판매 플랫폼", "소싱 제품", "개당 수입원가(₩)", "판매가(₩)", "수수료율(%)", "배송비(₩)", "박스비(₩)", "진짜 순수익(₩)", "마진율", ""];
+const COLS = ["판매 플랫폼", "소싱 제품", "개당 수입원가(₩)", "판매가(₩)", "수수료율(%)", "배송비(₩)", "박스비(₩)", "진짜 순수익(₩)", "마진율", "판매수량", "총매출(₩)", "총지출(₩)", "총이익(₩)", ""];
 
 export default function SalesMarginTable({ channels, projects }) {
   const queryClient = useQueryClient();
@@ -37,7 +37,7 @@ export default function SalesMarginTable({ channels, projects }) {
           <thead>
             <tr className="bg-secondary/60 border-b border-border">
               {COLS.map((c, i) => (
-                <th key={i} className={`px-2 py-2.5 text-left font-semibold text-muted-foreground whitespace-nowrap border-r border-border/60 ${i === 0 ? "sticky left-0 bg-secondary z-10" : ""} ${c === "진짜 순수익(₩)" ? "text-right text-primary" : ""}`}>
+                <th key={i} className={`px-2 py-2.5 text-left font-semibold text-muted-foreground whitespace-nowrap border-r border-border/60 ${i === 0 ? "sticky left-0 bg-secondary z-10" : ""} ${["진짜 순수익(₩)", "총매출(₩)", "총지출(₩)", "총이익(₩)"].includes(c) ? "text-right text-primary" : ""} ${c === "판매수량" ? "text-right" : ""}`}>
                   {c}
                 </th>
               ))}

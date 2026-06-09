@@ -42,12 +42,20 @@ export default function MarginRow({ scenario, channels, projects, products }) {
   const cost = perUnitCost(proj);
   const won = (n) => `₩${Math.round(n).toLocaleString()}`;
 
-  const { profit, margin } = useMemo(() => {
+  const qty = Number(proj?.total_order_qty) || 0;
+
+  const { profit, margin, totalRevenue, totalCost, totalProfit } = useMemo(() => {
     const price = Number(f.sale_price_krw) || 0;
     const commission = Math.round(price * ((Number(f.commission_rate) || 0) / 100));
     const p = price - cost - commission - (Number(f.delivery_fee_krw) || 0) - (Number(f.box_cost_krw) || 0);
-    return { profit: p, margin: price > 0 ? (p / price) * 100 : 0 };
-  }, [f, cost]);
+    return {
+      profit: p,
+      margin: price > 0 ? (p / price) * 100 : 0,
+      totalRevenue: price * qty,
+      totalCost: (price - p) * qty,
+      totalProfit: p * qty,
+    };
+  }, [f, cost, qty]);
 
   const save = useMutation({
     mutationFn: () => base44.entities.MarginScenario.update(scenario.id, {
@@ -113,6 +121,10 @@ export default function MarginRow({ scenario, channels, projects, products }) {
       <td className="px-2 py-1.5 border-r border-border/60 text-center whitespace-nowrap">
         <Badge className={`${marginColor} text-[11px]`}>{margin.toFixed(1)}%</Badge>
       </td>
+      <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">{qty ? qty.toLocaleString() : "-"}</td>
+      <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap">{won(totalRevenue)}</td>
+      <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">{won(totalCost)}</td>
+      <td className={`px-2 py-1.5 border-r border-border/60 text-right font-bold tabular-nums whitespace-nowrap ${totalProfit >= 0 ? "text-emerald-600" : "text-red-600"}`}>{won(totalProfit)}</td>
       <td className="px-2 py-1.5 whitespace-nowrap">
         <div className="flex items-center gap-1">
           <Button size="icon" variant={dirty ? "default" : "ghost"} className="h-7 w-7" onClick={() => save.mutate()} disabled={save.isPending} title="저장">
