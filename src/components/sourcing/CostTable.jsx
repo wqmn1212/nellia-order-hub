@@ -12,6 +12,7 @@ import CostRow from "@/components/sourcing/CostRow";
 const FIXED_LEFT = [
   { label: "제품명 / 품번", sticky: true },
   { label: "수량" },
+  { label: "제품제공" },
   { label: "공장단가($)" },
   { label: "선금($)" },
   { label: "선금환율" },

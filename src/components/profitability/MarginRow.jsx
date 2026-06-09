@@ -42,20 +42,26 @@ export default function MarginRow({ scenario, channels, projects, products }) {
   const cost = perUnitCost(proj);
   const won = (n) => `₩${Math.round(n).toLocaleString()}`;
 
-  const qty = Number(proj?.total_order_qty) || 0;
+  const orderQty = Number(proj?.total_order_qty) || 0;
+  const giveawayQty = Number(proj?.giveaway_qty) || 0;
+  const sellableQty = Math.max(orderQty - giveawayQty, 0); // 실제 판매 가능 수량
 
   const { profit, margin, totalRevenue, totalCost, totalProfit } = useMemo(() => {
     const price = Number(f.sale_price_krw) || 0;
     const commission = Math.round(price * ((Number(f.commission_rate) || 0) / 100));
     const p = price - cost - commission - (Number(f.delivery_fee_krw) || 0) - (Number(f.box_cost_krw) || 0);
+    // 매출/이익: 판매 가능 수량 기준 / 지출: 발주 전량 기준 (제공품 원가도 발생)
+    const variableCostPerUnit = price - p; // 원가+수수료+배송비+박스비
+    const revenue = price * sellableQty;
+    const expense = variableCostPerUnit * orderQty;
     return {
       profit: p,
       margin: price > 0 ? (p / price) * 100 : 0,
-      totalRevenue: price * qty,
-      totalCost: (price - p) * qty,
-      totalProfit: p * qty,
+      totalRevenue: revenue,
+      totalCost: expense,
+      totalProfit: revenue - expense,
     };
-  }, [f, cost, qty]);
+  }, [f, cost, sellableQty, orderQty]);
 
   const save = useMutation({
     mutationFn: () => base44.entities.MarginScenario.update(scenario.id, {
@@ -121,7 +127,10 @@ export default function MarginRow({ scenario, channels, projects, products }) {
       <td className="px-2 py-1.5 border-r border-border/60 text-center whitespace-nowrap">
         <Badge className={`${marginColor} text-[11px]`}>{margin.toFixed(1)}%</Badge>
       </td>
-      <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">{qty ? qty.toLocaleString() : "-"}</td>
+      <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">
+        {orderQty ? sellableQty.toLocaleString() : "-"}
+        {giveawayQty > 0 && <div className="text-[10px] text-amber-600">제공 -{giveawayQty.toLocaleString()}</div>}
+      </td>
       <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap">{won(totalRevenue)}</td>
       <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">{won(totalCost)}</td>
       <td className={`px-2 py-1.5 border-r border-border/60 text-right font-bold tabular-nums whitespace-nowrap ${totalProfit >= 0 ? "text-emerald-600" : "text-red-600"}`}>{won(totalProfit)}</td>

@@ -14,7 +14,7 @@ const extraToKrw = (v) => {
 };
 
 const NUM_FIELDS = [
-  "factory_price_usd", "total_order_qty",
+  "factory_price_usd", "total_order_qty", "giveaway_qty",
   "deposit_amount_usd", "deposit_exchange_rate",
   "balance_amount_usd", "balance_exchange_rate",
   "customs_tax_krw", "vat_krw", "inland_freight_krw", "sample_cost_krw",
@@ -111,6 +111,7 @@ export default function CostRow({ project, extraCols = [], onDetail }) {
           className="w-32 h-7 px-2 mt-1 text-[11px] text-muted-foreground rounded border border-input bg-transparent focus:outline-none focus:ring-1 focus:ring-ring" />
       </td>
       <Cell value={f.total_order_qty} onChange={set("total_order_qty")} w="w-16" />
+      <Cell value={f.giveaway_qty} onChange={set("giveaway_qty")} w="w-16" />
       <Cell value={f.factory_price_usd} onChange={set("factory_price_usd")} w="w-16" />
       <Cell value={f.deposit_amount_usd} onChange={set("deposit_amount_usd")} w="w-16" />
       <Cell value={f.deposit_exchange_rate} onChange={set("deposit_exchange_rate")} w="w-16" />
