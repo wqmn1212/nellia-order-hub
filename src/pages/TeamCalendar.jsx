@@ -4,6 +4,7 @@ import TaskHistoryFeed from "@/components/calendar/TaskHistoryFeed";
 import AiTaskRecommender from "@/components/shared/AiTaskRecommender";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { syncTaskToGoogle, deleteTaskFromGoogle } from "@/lib/googleCalendarSync";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,7 +75,8 @@ export default function TeamCalendar() {
 
   const createTask = useMutation({
     mutationFn: (data) => base44.entities.Task.create(data),
-    onSuccess: () => {
+    onSuccess: async (created) => {
+      if (created?.id) await syncTaskToGoogle(created.id);
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setShowForm(false);
       setForm({ title: "", assignee: "", priority: "medium", due_date: selectedDay ? format(selectedDay, "yyyy-MM-dd") : "", start_time: "", end_time: "", milestone: "", description: "", status: "todo", attachments: [] });
@@ -83,11 +85,19 @@ export default function TeamCalendar() {
 
   const updateTask = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Task.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+    onSuccess: async (_res, variables) => {
+      if (variables?.id) await syncTaskToGoogle(variables.id);
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
   });
 
   const deleteTask = useMutation({
-    mutationFn: (id) => base44.entities.Task.delete(id),
+    mutationFn: async (task) => {
+      const id = typeof task === "string" ? task : task.id;
+      const gid = typeof task === "object" ? task.google_event_id : null;
+      await base44.entities.Task.delete(id);
+      await deleteTaskFromGoogle(gid);
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   });
 
@@ -371,7 +381,7 @@ export default function TeamCalendar() {
                         <button onClick={() => openEdit(task)} className="text-muted-foreground hover:text-foreground shrink-0">
                           <Pencil className="w-3 h-3" />
                         </button>
-                        <button onClick={() => deleteTask.mutate(task.id)} className="text-muted-foreground hover:text-destructive shrink-0">
+                        <button onClick={() => deleteTask.mutate(task)} className="text-muted-foreground hover:text-destructive shrink-0">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
@@ -449,7 +459,7 @@ export default function TeamCalendar() {
                         <button onClick={() => openEdit(task)} className="text-muted-foreground hover:text-foreground shrink-0">
                           <Pencil className="w-3 h-3" />
                         </button>
-                        <button onClick={() => deleteTask.mutate(task.id)} className="text-muted-foreground hover:text-destructive shrink-0">
+                        <button onClick={() => deleteTask.mutate(task)} className="text-muted-foreground hover:text-destructive shrink-0">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
