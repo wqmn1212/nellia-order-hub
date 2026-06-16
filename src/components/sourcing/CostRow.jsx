@@ -125,7 +125,7 @@ export default function CostRow({ project, extraCols = [], onDetail }) {
         </button>
         {project.shipping_cost_foreign ? (
           <div className="text-[10px] text-muted-foreground mt-0.5 truncate w-28">
-            {project.shipping_currency === "RMB" ? "¥" : "$"}{Number(project.shipping_cost_foreign).toLocaleString()} @{project.shipping_exchange_rate || "-"} · {project.shipping_date || "-"}
+            {project.shipping_currency === "RMB" ? "¥" : project.shipping_currency === "KRW" ? "₩" : "$"}{Number(project.shipping_cost_foreign).toLocaleString()}{project.shipping_currency === "KRW" ? "" : ` @${project.shipping_exchange_rate || "-"}`} · {project.shipping_date || "-"}
           </div>
         ) : null}
       </td>

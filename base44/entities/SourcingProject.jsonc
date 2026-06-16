@@ -161,7 +161,8 @@
       "type": "string",
       "enum": [
         "USD",
-        "RMB"
+        "RMB",
+        "KRW"
       ],
       "default": "USD",
       "description": "\ubb3c\ub958\ube44 \uc785\ub825 \ud1b5\ud654 (\uc911\uad6d\u2192\ud55c\uad6d \uc6b4\uc1a1\ube44)"

@@ -14,18 +14,19 @@ export default function ShippingCostDialog({ project, open, onOpenChange }) {
   const [rate, setRate] = useState(project.shipping_exchange_rate ?? "");
   const [date, setDate] = useState(project.shipping_date || "");
 
+  const isKrw = currency === "KRW";
   const krw = useMemo(
-    () => Math.round((Number(amount) || 0) * (Number(rate) || 0)),
-    [amount, rate]
+    () => Math.round((Number(amount) || 0) * (isKrw ? 1 : (Number(rate) || 0))),
+    [amount, rate, isKrw]
   );
-  const symbol = currency === "USD" ? "$" : "¥";
+  const symbol = currency === "USD" ? "$" : currency === "RMB" ? "¥" : "₩";
 
   const save = useMutation({
     mutationFn: () =>
       base44.entities.SourcingProject.update(project.id, {
         shipping_currency: currency,
         shipping_cost_foreign: Number(amount) || 0,
-        shipping_exchange_rate: Number(rate) || 0,
+        shipping_exchange_rate: isKrw ? 1 : (Number(rate) || 0),
         shipping_date: date || undefined,
         shipping_cost_krw: krw,
       }),
@@ -50,6 +51,7 @@ export default function ShippingCostDialog({ project, open, onOpenChange }) {
                 <SelectContent>
                   <SelectItem value="USD">USD ($)</SelectItem>
                   <SelectItem value="RMB">RMB (¥)</SelectItem>
+                  <SelectItem value="KRW">KRW (₩)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -60,13 +62,15 @@ export default function ShippingCostDialog({ project, open, onOpenChange }) {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
+            {!isKrw && (
+              <div>
+                <Label className="text-xs">적용 환율 ({currency}→KRW)</Label>
+                <Input type="number" value={rate} onChange={(e) => setRate(e.target.value)}
+                  placeholder="예: 1380" className="mt-1" />
+              </div>
+            )}
             <div>
-              <Label className="text-xs">적용 환율 ({currency}→KRW)</Label>
-              <Input type="number" value={rate} onChange={(e) => setRate(e.target.value)}
-                placeholder="예: 1380" className="mt-1" />
-            </div>
-            <div>
-              <Label className="text-xs">환율 기준일</Label>
+              <Label className="text-xs">{isKrw ? "기준일" : "환율 기준일"}</Label>
               <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1" />
             </div>
           </div>
