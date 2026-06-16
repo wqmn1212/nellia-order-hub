@@ -166,7 +166,6 @@ export default function CostTable({ projects, isLoading, onDetail }) {
                   <Plus className="w-4 h-4" />
                 </button>
               </th>
-              <th className="px-2 py-2.5 text-right font-semibold text-primary whitespace-nowrap border-r border-border/60">광고비(₩)</th>
               <th className="px-2 py-2.5 text-right font-semibold text-primary whitespace-nowrap border-r border-border/60">개당 수입원가(₩)</th>
               <th className="px-2 py-2.5 text-left font-semibold text-muted-foreground whitespace-nowrap border-r border-border/60">입항(ETA)</th>
               <th className="px-2 py-2.5" />

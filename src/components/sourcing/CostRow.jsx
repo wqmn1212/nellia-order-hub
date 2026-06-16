@@ -137,7 +137,6 @@ export default function CostRow({ project, extraCols = [], onDetail }) {
         <ExtraCostCell key={label} value={extra[label]} onChange={setExtraVal(label)} />
       ))}
       <td className="px-1.5 py-1.5 border-r border-border/60 bg-accent/10" />
-      <td className="px-2 py-1.5 border-r border-border/60 text-right tabular-nums whitespace-nowrap text-muted-foreground">{won(adTotal)}</td>
       <td className="px-2 py-1.5 border-r border-border/60 text-right font-bold text-red-600 tabular-nums whitespace-nowrap text-sm">
         {won(c.perUnit)}
       </td>
