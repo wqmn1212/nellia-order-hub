@@ -14,7 +14,10 @@ function buildEventBody(task) {
     ceo: '대표', designer: '디자이너', marketer: '마케터', logistics: '물류/운영',
   }[task.assignee] || '';
 
-  const summary = assigneeLabel ? `[${assigneeLabel}] ${task.title}` : task.title;
+  const base = assigneeLabel ? `[${assigneeLabel}] ${task.title}` : task.title;
+  // 완료/취소 상태는 제목에 표시해 구글 캘린더에서도 한눈에 확인
+  const prefix = task.status === 'done' ? '✅ ' : task.status === 'cancelled' ? '❌ ' : '';
+  const summary = `${prefix}${base}`;
   const event = {
     summary,
     description: task.description || '',
