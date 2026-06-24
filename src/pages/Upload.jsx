@@ -43,6 +43,12 @@ export default function Upload() {
     },
   };
 
+  const toNum = (v) => {
+    if (v == null || v === "") return undefined;
+    const n = Number(String(v).replace(/[^0-9.-]/g, ""));
+    return isNaN(n) ? undefined : n;
+  };
+
   const handleUpload = async () => {
     if (!file || !channel) {
       setError("채널과 파일을 모두 선택해주세요");
@@ -52,32 +58,56 @@ export default function Upload() {
     setStatus("uploading");
     setResult(null);
 
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
-    setStatus("extracting");
-    const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
-      file_url,
-      json_schema: extractSchema,
-    });
+      setStatus("extracting");
+      const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: extractSchema,
+      });
 
-    if (extracted.status !== "success" || !extracted.output?.orders?.length) {
+      if (extracted.status !== "success") {
+        setStatus("error");
+        setError(extracted.details || "파일에서 주문 정보를 추출할 수 없습니다");
+        return;
+      }
+
+      // output이 { orders: [...] } 또는 배열([...]) 형태로 올 수 있어 모두 처리
+      const out = extracted.output;
+      const rawOrders = Array.isArray(out) ? out : (out?.orders || []);
+
+      if (!rawOrders.length) {
+        setStatus("error");
+        setError("파일에서 주문 행을 찾지 못했습니다. 헤더와 데이터 형식을 확인해주세요");
+        return;
+      }
+
+      const orders = rawOrders.map((o) => ({
+        order_number: o.order_number ? String(o.order_number) : undefined,
+        order_date: o.order_date || undefined,
+        customer_name: o.customer_name || "미상",
+        customer_phone: o.customer_phone || undefined,
+        customer_address: o.customer_address || undefined,
+        customer_zipcode: o.customer_zipcode ? String(o.customer_zipcode) : undefined,
+        product_name: o.product_name || "미상",
+        product_option: o.product_option || undefined,
+        quantity: toNum(o.quantity) ?? 1,
+        price: toNum(o.price),
+        delivery_memo: o.delivery_memo || undefined,
+        channel,
+        status: "new",
+      }));
+
+      await base44.entities.Order.bulkCreate(orders);
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+
+      setStatus("success");
+      setResult({ count: orders.length });
+    } catch (e) {
       setStatus("error");
-      setError(extracted.details || "파일에서 주문 정보를 추출할 수 없습니다");
-      return;
+      setError(e?.message || "주문 등록 중 오류가 발생했습니다");
     }
-
-    const orders = extracted.output.orders.map((o) => ({
-      ...o,
-      channel,
-      status: "new",
-      quantity: o.quantity || 1,
-    }));
-
-    await base44.entities.Order.bulkCreate(orders);
-    queryClient.invalidateQueries({ queryKey: ["orders"] });
-
-    setStatus("success");
-    setResult({ count: orders.length });
   };
 
   return (
