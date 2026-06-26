@@ -6,6 +6,7 @@ import PlatformSummaryCards from "@/components/adhub/PlatformSummaryCards";
 import AdTrendChart from "@/components/adhub/AdTrendChart";
 import AiInsightsPanel from "@/components/adhub/AiInsightsPanel";
 import CampaignControlTable from "@/components/adhub/CampaignControlTable";
+import AdSyncPanel from "@/components/adhub/AdSyncPanel";
 
 export default function AdHub() {
   const { data: adRows = [] } = useQuery({
@@ -24,6 +25,12 @@ export default function AdHub() {
     initialData: [],
   });
 
+  // 플랫폼별 최근 수집 일자
+  const lastDates = {};
+  for (const r of adRows) {
+    if (!lastDates[r.platform] || r.date > lastDates[r.platform]) lastDates[r.platform] = r.date;
+  }
+
   return (
     <div className="p-4 md:p-8 max-w-[100rem] mx-auto space-y-6">
       <div className="flex items-center gap-3">
@@ -35,6 +42,8 @@ export default function AdHub() {
           <p className="text-sm text-muted-foreground">5대 매체 성과를 한곳에서 분석하고 AI로 최적화합니다</p>
         </div>
       </div>
+
+      <AdSyncPanel lastDates={lastDates} />
 
       <PlatformSummaryCards rows={adRows} />
 
