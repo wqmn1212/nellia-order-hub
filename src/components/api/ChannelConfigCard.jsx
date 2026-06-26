@@ -34,28 +34,40 @@ const CHANNEL_META = {
   },
 };
 
+// 저장된 키를 마스킹 처리 (앞 3자 + •••• + 뒤 4자)
+const maskKey = (value) => {
+  if (!value) return "";
+  if (value.length <= 8) return "••••••••";
+  return `${value.slice(0, 3)}••••${value.slice(-4)}`;
+};
+
 export default function ChannelConfigCard({ channel, config, onSaved }) {
   const meta = CHANNEL_META[channel];
+  // form 값은 '새로 입력하는 값'만 보관. 빈 값이면 기존 저장값 유지
   const [form, setForm] = useState({ access_key: "", secret_key: "", vendor_id: "" });
+  // 사용자가 직접 수정 중인 필드만 추적 (수정 안 한 필드는 마스킹된 기존값 표시)
+  const [editing, setEditing] = useState({});
   const [showSecret, setShowSecret] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // config가 바뀌면 입력 상태 초기화 (실제 키는 form에 절대 담지 않음 → 화면 노출 방지)
   useEffect(() => {
-    if (config) {
-      setForm({
-        access_key: config.access_key || "",
-        secret_key: config.secret_key || "",
-        vendor_id: config.vendor_id || "",
-      });
-    }
+    setForm({ access_key: "", secret_key: "", vendor_id: "" });
+    setEditing({});
   }, [config]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
+      // 비어있는(=수정 안 한) 필드는 기존 저장값 유지하도록 제외
+      const payload = {};
+      Object.keys(data).forEach((k) => {
+        if (k === "is_active") { payload[k] = data[k]; return; }
+        if (editing[k] && data[k] !== "") payload[k] = data[k];
+      });
       if (config?.id) {
-        return base44.entities.ApiConfig.update(config.id, data);
+        return base44.entities.ApiConfig.update(config.id, payload);
       } else {
-        return base44.entities.ApiConfig.create({ channel, ...data });
+        return base44.entities.ApiConfig.create({ channel, ...payload });
       }
     },
     onSuccess: () => {
@@ -111,29 +123,42 @@ export default function ChannelConfigCard({ channel, config, onSaved }) {
         </a>
       </CardHeader>
       <CardContent className="space-y-3">
-        {meta.fields.map((field) => (
-          <div key={field.key} className="space-y-1">
-            <Label className="text-xs">{field.label}</Label>
-            <div className="relative">
-              <Input
-                type={field.secret && !showSecret ? "password" : "text"}
-                placeholder={field.placeholder}
-                value={form[field.key] || ""}
-                onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
-                className="text-sm pr-8"
-              />
-              {field.secret && (
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  onClick={() => setShowSecret(!showSecret)}
-                >
-                  {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+        {meta.fields.map((field) => {
+          const savedValue = config?.[field.key];
+          const isEditing = editing[field.key];
+          // 저장된 값이 있고 수정 중이 아니면 마스킹된 값을 표시
+          const showMasked = savedValue && !isEditing;
+          return (
+            <div key={field.key} className="space-y-1">
+              <Label className="text-xs">{field.label}</Label>
+              <div className="relative">
+                <Input
+                  type={field.secret && !showSecret && !showMasked ? "password" : "text"}
+                  placeholder={field.placeholder}
+                  value={showMasked ? maskKey(savedValue) : (form[field.key] || "")}
+                  readOnly={showMasked}
+                  onFocus={() => {
+                    if (showMasked) setEditing({ ...editing, [field.key]: true });
+                  }}
+                  onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
+                  className={`text-sm pr-8 ${showMasked ? "text-muted-foreground cursor-pointer font-mono" : ""}`}
+                />
+                {field.secret && !showMasked && (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    onClick={() => setShowSecret(!showSecret)}
+                  >
+                    {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                )}
+              </div>
+              {showMasked && (
+                <p className="text-[11px] text-muted-foreground">저장된 키 (보안상 일부만 표시) · 변경하려면 클릭</p>
               )}
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {config?.last_synced_at && (
           <p className="text-xs text-muted-foreground flex items-center gap-1">
