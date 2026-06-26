@@ -10,22 +10,10 @@
       ],
       "description": "\ud310\ub9e4 \ucc44\ub110"
     },
-    "access_key": {
-      "type": "string",
-      "description": "Access Key / Client ID"
-    },
-    "secret_key": {
-      "type": "string",
-      "description": "Secret Key / Client Secret"
-    },
-    "vendor_id": {
-      "type": "string",
-      "description": "\ucfe0\ud321 Vendor ID (\ucfe0\ud321 \uc804\uc6a9)"
-    },
     "is_active": {
       "type": "boolean",
       "default": false,
-      "description": "\uc5f0\ub3d9 \ud65c\uc131\ud654 \uc5ec\ubd80"
+      "description": "\uc5f0\ub3d9 \ud65c\uc131\ud654 \uc5ec\ubd80 (\uc2e4\uc81c \ud0a4\ub294 Secrets\uc5d0 \uc800\uc7a5\ub428)"
     },
     "last_synced_at": {
       "type": "string",
