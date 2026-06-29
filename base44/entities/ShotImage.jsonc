@@ -1,0 +1,40 @@
+{
+  "name": "ShotImage",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "product",
+        "model"
+      ],
+      "default": "product",
+      "description": "\uc774\ubbf8\uc9c0 \uc885\ub958 (\uc81c\ud488 \ucd2c\uc601 / \ubaa8\ub378 \uc778\ubb3c)"
+    },
+    "name": {
+      "type": "string",
+      "description": "\uc774\ubbf8\uc9c0 \uc774\ub984 (\uc608: \ub4dc\ub77c\uc774\uc5b4 \uc815\uba74, \ubaa8\ub378 A)"
+    },
+    "product_id": {
+      "type": "string",
+      "description": "\uc5f0\uacb0\ub41c \uc81c\ud488 DB(Product) ID (\uc81c\ud488 \uc774\ubbf8\uc9c0\uc778 \uacbd\uc6b0)"
+    },
+    "angle": {
+      "type": "string",
+      "description": "\ucd2c\uc601 \uac01\ub3c4 (\uc608: \uc815\uba74, \uce21\uba74, \ud6c4\uba74, \ub514\ud14c\uc77c, \ud328\ud0a4\uc9c0)"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "\uc5c5\ub85c\ub4dc\ub41c \uc2e4\uc81c \ucd2c\uc601 \uc774\ubbf8\uc9c0 URL"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\uba54\ubaa8"
+    }
+  },
+  "required": [
+    "type",
+    "name",
+    "image_url"
+  ]
+}

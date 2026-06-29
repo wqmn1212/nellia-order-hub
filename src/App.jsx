@@ -25,6 +25,7 @@ import CsTickets from '@/pages/CsTickets';
 import Profitability from '@/pages/Profitability';
 import MobileSummary from '@/pages/MobileSummary';
 import AdHub from '@/pages/AdHub';
+import ImageStudio from '@/pages/ImageStudio';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -71,6 +72,7 @@ const AuthenticatedApp = () => {
         <Route path="/cs-tickets" element={<RoleGuard><CsTickets /></RoleGuard>} />
         <Route path="/profitability" element={<RoleGuard><Profitability /></RoleGuard>} />
         <Route path="/ad-hub" element={<RoleGuard><AdHub /></RoleGuard>} />
+        <Route path="/image-studio" element={<RoleGuard><ImageStudio /></RoleGuard>} />
         <Route path="/summary" element={<RoleGuard><MobileSummary /></RoleGuard>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
