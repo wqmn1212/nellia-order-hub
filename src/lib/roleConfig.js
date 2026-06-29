@@ -2,7 +2,7 @@
 export const ROLE_ROUTES = {
   admin: "all", // 모든 페이지 접근 가능
   marketing: ["/", "/summary", "/calendar", "/analytics", "/marketing-kpi", "/ad-hub", "/products", "/image-studio", "/ai-team", "/drive"],
-  logistics: ["/", "/summary", "/calendar", "/orders", "/shipping", "/upload", "/sourcing", "/profitability", "/drive"],
+  logistics: ["/", "/summary", "/calendar", "/orders", "/shipping", "/upload", "/sourcing", "/profitability", "/inventory", "/drive"],
   cs: ["/", "/summary", "/calendar", "/orders", "/cs-tickets", "/ai-team"],
 };
 
