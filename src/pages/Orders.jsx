@@ -16,6 +16,7 @@ export default function Orders() {
   const [filters, setFilters] = useState({ search: "", channel: "all", status: "all" });
   const [selected, setSelected] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editOrder, setEditOrder] = useState(null);
 
   const { data: orders = [] } = useQuery({
     queryKey: ["orders"],
@@ -104,6 +105,7 @@ export default function Orders() {
         onToggleSelect={toggleSelect}
         onToggleAll={toggleAll}
         onStatusChange={(id, status) => updateMutation.mutate({ id, data: { status } })}
+        onEdit={setEditOrder}
       />
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
@@ -116,6 +118,25 @@ export default function Orders() {
             onCancel={() => setShowForm(false)}
             submitLabel="주문 생성"
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editOrder} onOpenChange={(o) => { if (!o) setEditOrder(null); }}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-2xl">주문 수정</DialogTitle>
+          </DialogHeader>
+          {editOrder && (
+            <OrderForm
+              initial={editOrder}
+              onSubmit={(data) => {
+                updateMutation.mutate({ id: editOrder.id, data });
+                setEditOrder(null);
+              }}
+              onCancel={() => setEditOrder(null)}
+              submitLabel="수정 저장"
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

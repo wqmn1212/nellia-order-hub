@@ -7,15 +7,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Package, MoreHorizontal, MessageSquareWarning, Truck } from "lucide-react";
+import { Package, MoreHorizontal, MessageSquareWarning, Pencil } from "lucide-react";
 import CsTicketForm from "@/components/cs/CsTicketForm";
-import ShippingEditDialog from "@/components/orders/ShippingEditDialog";
 import ChannelBadge from "@/components/shared/ChannelBadge";
 import { STATUSES } from "@/components/shared/constants";
 
-export default function OrderTable({ orders, selected, onToggleSelect, onToggleAll, onStatusChange }) {
+export default function OrderTable({ orders, selected, onToggleSelect, onToggleAll, onStatusChange, onEdit }) {
   const [csOrder, setCsOrder] = useState(null);
-  const [shipOrder, setShipOrder] = useState(null);
   const allSelected = orders.length > 0 && selected.length === orders.length;
 
   if (orders.length === 0) {
@@ -103,8 +101,8 @@ export default function OrderTable({ orders, selected, onToggleSelect, onToggleA
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setShipOrder(order)}>
-                          <Truck className="w-4 h-4 mr-2" /> 발송 정보 수정
+                        <DropdownMenuItem onClick={() => onEdit?.(order)}>
+                          <Pencil className="w-4 h-4 mr-2" /> 주문 수정
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setCsOrder(order)}>
                           <MessageSquareWarning className="w-4 h-4 mr-2" /> CS 접수하기
@@ -119,7 +117,6 @@ export default function OrderTable({ orders, selected, onToggleSelect, onToggleA
         </div>
       </Card>
       <CsTicketForm open={!!csOrder} onOpenChange={(o) => { if (!o) setCsOrder(null); }} order={csOrder} />
-      <ShippingEditDialog open={!!shipOrder} onOpenChange={(o) => { if (!o) setShipOrder(null); }} order={shipOrder} />
     </>
   );
 }
