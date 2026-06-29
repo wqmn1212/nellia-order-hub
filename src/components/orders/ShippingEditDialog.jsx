@@ -26,40 +26,17 @@ export default function ShippingEditDialog({ order, open, onOpenChange }) {
 
   const save = useMutation({
     mutationFn: async () => {
-      const newQty = Number(form.quantity) || 1;
-      const oldQty = order.quantity || 1;
       const payload = {
         status: form.status,
         courier: form.courier || undefined,
         tracking_number: form.tracking_number || undefined,
-        quantity: newQty,
+        quantity: Number(form.quantity) || 1,
       };
       if (form.status === "shipped" && !order.shipped_at) {
         payload.shipped_at = new Date().toISOString();
       }
+      // 재고 차감은 출고(shipped) 상태 변경 시 자동으로 처리됩니다.
       await base44.entities.Order.update(order.id, payload);
-
-      // 수량이 변경되면 그 차이만큼 재고에 반영 (출고 수량 변동 처리)
-      const diff = newQty - oldQty;
-      if (diff !== 0 && order.product_name) {
-        const products = await base44.entities.Product.filter({ name: order.product_name });
-        if (products.length > 0) {
-          const product = products[0];
-          const current = product.stock_quantity || 0;
-          const newStock = Math.max(0, current - diff);
-          await base44.entities.Product.update(product.id, { stock_quantity: newStock });
-          await base44.entities.InventoryLog.create({
-            product_id: product.id,
-            product_name: product.name,
-            quantity_change: -diff,
-            reason: "sale_out",
-            reason_detail: `발송 수량 변경 (${order.order_number || order.id}): ${oldQty}→${newQty}개`,
-            handler: "수동 입력",
-            order_id: order.id,
-            stock_after: newStock,
-          });
-        }
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -104,7 +81,7 @@ export default function ShippingEditDialog({ order, open, onOpenChange }) {
               onChange={(e) => setForm({ ...form, quantity: e.target.value })}
               className="mt-1"
             />
-            <p className="text-[11px] text-muted-foreground mt-1">수량을 변경하면 차이만큼 재고에 자동 반영됩니다.</p>
+            <p className="text-[11px] text-muted-foreground mt-1">상태를 '출고'로 변경하면 이 수량만큼 재고가 차감됩니다.</p>
           </div>
 
           <div>

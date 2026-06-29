@@ -19,6 +19,21 @@ Deno.serve(async (req) => {
     const quantity = data.quantity || 1;
     const orderId = event?.entity_id;
 
+    if (!productName) {
+      return Response.json({ skipped: true, reason: "no product_name" });
+    }
+
+    // 이미 이 주문으로 차감 로그가 있으면 중복 차감 방지
+    if (orderId) {
+      const existing = await base44.asServiceRole.entities.InventoryLog.filter({
+        order_id: orderId,
+        reason: "sale_out",
+      });
+      if (existing.length > 0) {
+        return Response.json({ skipped: true, reason: "already deducted for this order" });
+      }
+    }
+
     // Find matching product by name
     const products = await base44.asServiceRole.entities.Product.filter({ name: productName });
     
