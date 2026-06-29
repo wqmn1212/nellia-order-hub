@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +17,11 @@ export default function OrderForm({ initial, onSubmit, onCancel, submitLabel = "
       quantity: 1,
     }
   );
+
+  const { data: products = [] } = useQuery({
+    queryKey: ["products-for-order"],
+    queryFn: () => base44.entities.Product.list("name", 200),
+  });
 
   const set = (k, v) => setData({ ...data, [k]: v });
 
@@ -73,8 +80,20 @@ export default function OrderForm({ initial, onSubmit, onCancel, submitLabel = "
       <Divider>상품 정보</Divider>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <Field label="상품명 *" className="md:col-span-2">
-          <Input required value={data.product_name || ""} onChange={(e) => set("product_name", e.target.value)} />
+        <Field label="상품명 * (제품 DB에서 선택)" className="md:col-span-2">
+          <Select value={data.product_name || ""} onValueChange={(v) => set("product_name", v)}>
+            <SelectTrigger><SelectValue placeholder="제품을 선택하세요" /></SelectTrigger>
+            <SelectContent>
+              {data.product_name && !products.some((p) => p.name === data.product_name) && (
+                <SelectItem value={data.product_name}>{data.product_name} (DB 미등록)</SelectItem>
+              )}
+              {products.map((p) => (
+                <SelectItem key={p.id} value={p.name}>
+                  {p.name} (재고 {p.stock_quantity ?? 0})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
         <Field label="옵션">
           <Input value={data.product_option || ""} onChange={(e) => set("product_option", e.target.value)} />
