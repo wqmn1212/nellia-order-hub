@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CHANNELS, STATUSES, COURIERS } from "@/components/shared/constants";
+import { STATUSES, COURIERS } from "@/components/shared/constants";
+import { useChannels } from "@/components/shared/useChannels";
+import AddChannelDialog from "./AddChannelDialog";
 
 export default function OrderForm({ initial, onSubmit, onCancel, submitLabel = "저장" }) {
   const [data, setData] = useState(
@@ -23,6 +26,9 @@ export default function OrderForm({ initial, onSubmit, onCancel, submitLabel = "
     queryFn: () => base44.entities.Product.list("name", 200),
   });
 
+  const { channels } = useChannels();
+  const [channelDialogOpen, setChannelDialogOpen] = useState(false);
+
   const set = (k, v) => setData({ ...data, [k]: v });
 
   const handleSubmit = (e) => {
@@ -34,12 +40,17 @@ export default function OrderForm({ initial, onSubmit, onCancel, submitLabel = "
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label="채널 *">
-          <Select value={data.channel} onValueChange={(v) => set("channel", v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {Object.entries(CHANNELS).map(([k, c]) => <SelectItem key={k} value={k}>{c.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select value={data.channel} onValueChange={(v) => set("channel", v)}>
+              <SelectTrigger><SelectValue placeholder="채널 선택" /></SelectTrigger>
+              <SelectContent>
+                {channels.map((c) => <SelectItem key={c.key} value={c.key}>{c.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={() => setChannelDialogOpen(true)} title="채널 추가">
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
         </Field>
         <Field label="주문 상태">
           <Select value={data.status} onValueChange={(v) => set("status", v)}>
@@ -129,6 +140,12 @@ export default function OrderForm({ initial, onSubmit, onCancel, submitLabel = "
         {onCancel && <Button type="button" variant="outline" onClick={onCancel}>취소</Button>}
         <Button type="submit" className="bg-primary hover:bg-primary/90">{submitLabel}</Button>
       </div>
+
+      <AddChannelDialog
+        open={channelDialogOpen}
+        onOpenChange={setChannelDialogOpen}
+        onAdded={(key) => set("channel", key)}
+      />
     </form>
   );
 }

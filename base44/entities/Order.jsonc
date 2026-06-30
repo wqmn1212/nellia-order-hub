@@ -8,15 +8,6 @@
     },
     "channel": {
       "type": "string",
-      "enum": [
-        "coupang",
-        "naver",
-        "wadiz",
-        "toss",
-        "kakao",
-        "self_mall",
-        "other"
-      ],
       "description": "\ud310\ub9e4 \ucc44\ub110"
     },
     "order_date": {

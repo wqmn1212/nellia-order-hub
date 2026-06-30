@@ -1,0 +1,18 @@
+{
+  "name": "Channel",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "\ucc44\ub110 \uc2dd\ubcc4 \ud0a4 (\uc601\ubb38, \uc800\uc7a5\uac12)"
+    },
+    "label": {
+      "type": "string",
+      "description": "\ucc44\ub110 \ud45c\uc2dc \uc774\ub984"
+    }
+  },
+  "required": [
+    "key",
+    "label"
+  ]
+}
