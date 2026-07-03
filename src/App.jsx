@@ -27,6 +27,8 @@ import MobileSummary from '@/pages/MobileSummary';
 import AdHub from '@/pages/AdHub';
 import ImageStudio from '@/pages/ImageStudio';
 import Inventory from '@/pages/Inventory';
+import Influencers from '@/pages/Influencers';
+import Reviews from '@/pages/Reviews';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -75,6 +77,8 @@ const AuthenticatedApp = () => {
         <Route path="/ad-hub" element={<RoleGuard><AdHub /></RoleGuard>} />
         <Route path="/image-studio" element={<RoleGuard><ImageStudio /></RoleGuard>} />
         <Route path="/inventory" element={<RoleGuard><Inventory /></RoleGuard>} />
+        <Route path="/influencers" element={<RoleGuard><Influencers /></RoleGuard>} />
+        <Route path="/reviews" element={<RoleGuard><Reviews /></RoleGuard>} />
         <Route path="/summary" element={<RoleGuard><MobileSummary /></RoleGuard>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />

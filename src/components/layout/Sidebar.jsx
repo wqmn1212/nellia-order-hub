@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { canAccess } from "@/lib/roleConfig";
-import { LayoutDashboard, Package, Truck, Upload, Settings, Plug, BotMessageSquare, BarChart2, ShoppingBag, Megaphone, CalendarDays, Globe, HardDrive, MessageSquareWarning, Calculator, Wand2, Boxes } from "lucide-react";
+import { LayoutDashboard, Package, Truck, Upload, Settings, Plug, BotMessageSquare, BarChart2, ShoppingBag, Megaphone, CalendarDays, Globe, HardDrive, MessageSquareWarning, Calculator, Wand2, Boxes, Handshake, Star } from "lucide-react";
 
 const NAV = [
   { to: "/", label: "대시보드", icon: LayoutDashboard },
@@ -13,6 +13,8 @@ const NAV = [
   { to: "/analytics", label: "KPI 분석", icon: BarChart2 },
   { to: "/marketing-kpi", label: "마케팅 성과", icon: Megaphone },
   { to: "/ad-hub", label: "광고 관리 (Ad-Hub)", icon: Megaphone },
+  { to: "/influencers", label: "인플루언서 협찬", icon: Handshake },
+  { to: "/reviews", label: "후기 관리", icon: Star },
   { to: "/products", label: "제품 DB", icon: ShoppingBag },
   { to: "/inventory", label: "재고 관리", icon: Boxes },
   { to: "/image-studio", label: "제품 이미지 스튜디오", icon: Wand2 },

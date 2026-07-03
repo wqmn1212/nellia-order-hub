@@ -1,0 +1,77 @@
+{
+  "name": "CustomerReview",
+  "type": "object",
+  "properties": {
+    "source": {
+      "type": "string",
+      "enum": [
+        "blog",
+        "naver_shopping",
+        "coupang",
+        "own_mall",
+        "instagram",
+        "other"
+      ],
+      "description": "\ud6c4\uae30 \ucc44\ub110"
+    },
+    "product_id": {
+      "type": "string",
+      "description": "\ub300\uc0c1 \uc81c\ud488 ID"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "\uc81c\ud488\uba85 (\uc870\ud68c \ud3b8\uc758\uc6a9)"
+    },
+    "reviewer_name": {
+      "type": "string",
+      "description": "\uc791\uc131\uc790"
+    },
+    "content": {
+      "type": "string",
+      "description": "\ud6c4\uae30 \ud14d\uc2a4\ud2b8 \ub0b4\uc6a9"
+    },
+    "review_url": {
+      "type": "string",
+      "description": "\ud6c4\uae30 \ub9c1\ud06c"
+    },
+    "rating": {
+      "type": "number",
+      "description": "\ubcc4\uc810 (1~5)"
+    },
+    "sentiment": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "neutral",
+        "negative"
+      ],
+      "description": "\uac10\uc815 \ubd84\uc11d \uacb0\uacfc (AI \uc790\ub3d9)"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "\ud575\uc2ec \ud0a4\uc6cc\ub4dc (AI \uc790\ub3d9 \ucd94\ucd9c)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "unchecked",
+        "checked",
+        "action_needed"
+      ],
+      "default": "unchecked",
+      "description": "\ucc98\ub9ac \uc0c1\ud0dc"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\ud6c4\uae30 \uc791\uc131\uc77c"
+    }
+  },
+  "required": [
+    "source",
+    "content"
+  ]
+}

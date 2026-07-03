@@ -1,0 +1,44 @@
+{
+  "name": "ContentPerformance",
+  "type": "object",
+  "properties": {
+    "collaboration_id": {
+      "type": "string",
+      "description": "\uc5f0\uacb0\ub41c \ud611\ucc2c \ud504\ub85c\uc81d\ud2b8 ID"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "\uce21\uc815 \uae30\uc900\uc77c"
+    },
+    "views": {
+      "type": "number",
+      "default": 0,
+      "description": "\uc870\ud68c\uc218"
+    },
+    "likes": {
+      "type": "number",
+      "default": 0,
+      "description": "\uc88b\uc544\uc694"
+    },
+    "comments": {
+      "type": "number",
+      "default": 0,
+      "description": "\ub313\uae00 \uc218"
+    },
+    "saves": {
+      "type": "number",
+      "default": 0,
+      "description": "\uc800\uc7a5 \uc218"
+    },
+    "shares": {
+      "type": "number",
+      "default": 0,
+      "description": "\uacf5\uc720 \uc218"
+    }
+  },
+  "required": [
+    "collaboration_id",
+    "date"
+  ]
+}
