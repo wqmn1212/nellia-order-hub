@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Upload as UploadIcon, FileSpreadsheet, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { CHANNELS } from "@/components/shared/constants";
+import { parseOrderExcel } from "@/lib/parseOrderExcel";
 
 export default function Upload() {
   const navigate = useNavigate();
@@ -18,87 +19,27 @@ export default function Upload() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
-  const extractSchema = {
-    type: "object",
-    properties: {
-      orders: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            order_number: { type: "string" },
-            order_date: { type: "string", description: "YYYY-MM-DD 형식" },
-            customer_name: { type: "string" },
-            customer_phone: { type: "string" },
-            customer_address: { type: "string" },
-            customer_zipcode: { type: "string" },
-            product_name: { type: "string" },
-            product_option: { type: "string" },
-            quantity: { type: "number" },
-            price: { type: "number" },
-            delivery_memo: { type: "string" },
-          },
-        },
-      },
-    },
-  };
-
-  const toNum = (v) => {
-    if (v == null || v === "") return undefined;
-    const n = Number(String(v).replace(/[^0-9.-]/g, ""));
-    return isNaN(n) ? undefined : n;
-  };
-
   const handleUpload = async () => {
     if (!file || !channel) {
       setError("채널과 파일을 모두 선택해주세요");
       return;
     }
     setError("");
-    setStatus("uploading");
+    setStatus("extracting");
     setResult(null);
 
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const parsed = await parseOrderExcel(file);
 
-      setStatus("extracting");
-      const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url,
-        json_schema: extractSchema,
-      });
-
-      if (extracted.status !== "success") {
+      if (!parsed.length) {
         setStatus("error");
-        setError(extracted.details || "파일에서 주문 정보를 추출할 수 없습니다");
+        setError("파일에서 주문 행을 찾지 못했습니다. 열 위치(A,B,E,F,G,H,I,M)와 데이터를 확인해주세요");
         return;
       }
 
-      // output이 { orders: [...] } 또는 배열([...]) 형태로 올 수 있어 모두 처리
-      const out = extracted.output;
-      const rawOrders = Array.isArray(out) ? out : (out?.orders || []);
+      const orders = parsed.map((o) => ({ ...o, channel, status: "new" }));
 
-      if (!rawOrders.length) {
-        setStatus("error");
-        setError("파일에서 주문 행을 찾지 못했습니다. 헤더와 데이터 형식을 확인해주세요");
-        return;
-      }
-
-      const orders = rawOrders.map((o) => ({
-        order_number: o.order_number ? String(o.order_number) : undefined,
-        order_date: o.order_date || undefined,
-        customer_name: o.customer_name || "미상",
-        customer_phone: o.customer_phone || undefined,
-        customer_address: o.customer_address || undefined,
-        customer_zipcode: o.customer_zipcode ? String(o.customer_zipcode) : undefined,
-        product_name: o.product_name || "미상",
-        product_option: o.product_option || undefined,
-        quantity: toNum(o.quantity) ?? 1,
-        price: toNum(o.price),
-        delivery_memo: o.delivery_memo || undefined,
-        channel,
-        status: "new",
-      }));
-
+      setStatus("uploading");
       await base44.entities.Order.bulkCreate(orders);
       queryClient.invalidateQueries({ queryKey: ["orders"] });
 
@@ -201,10 +142,12 @@ export default function Upload() {
       </Card>
 
       <div className="mt-8 text-xs text-muted-foreground space-y-1.5">
-        <p className="font-medium text-foreground">💡 팁</p>
-        <p>• 파일에는 주문번호, 수령인, 주소, 상품명 등이 포함되어야 합니다</p>
-        <p>• AI가 자동으로 컬럼을 인식하여 매핑합니다</p>
-        <p>• 업로드 후 주문 관리 페이지에서 내용을 확인·수정할 수 있습니다</p>
+        <p className="font-medium text-foreground">📋 엑셀 열 매핑 규칙 (첫 행은 헤더로 제외)</p>
+        <p>• A열 = 받으시는분(이름) · B열 = 연락처</p>
+        <p>• E열 = 우편번호 · F열 = 주소</p>
+        <p>• G열 = 수량 · H열 = 품목명</p>
+        <p>• I열 = 운임타입(메모로 기록) · M열 = 배송메모</p>
+        <p className="pt-1">• 업로드 후 주문 관리 페이지에서 내용을 확인·수정할 수 있습니다</p>
       </div>
     </div>
   );
