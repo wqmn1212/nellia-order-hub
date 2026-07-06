@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STATUSES, COURIERS } from "@/components/shared/constants";
 import { useChannels } from "@/components/shared/useChannels";
@@ -7,8 +8,16 @@ import { X } from "lucide-react";
 
 const triggerClass = "w-36 h-9 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground";
 
-export default function BulkActions({ selectedCount, onStatusChange, onCourierChange, onChannelChange, onDelete, onClear }) {
+export default function BulkActions({ selectedCount, onStatusChange, onCourierChange, onChannelChange, onPriceChange, onDelete, onClear }) {
   const { channels } = useChannels();
+  const [price, setPrice] = useState("");
+
+  const applyPrice = () => {
+    const n = Number(price);
+    if (price === "" || isNaN(n)) return;
+    onPriceChange(n);
+    setPrice("");
+  };
 
   if (selectedCount === 0) return null;
 
@@ -51,6 +60,24 @@ export default function BulkActions({ selectedCount, onStatusChange, onCourierCh
           ))}
         </SelectContent>
       </Select>
+
+      <div className="flex items-center gap-1">
+        <Input
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && applyPrice()}
+          placeholder="금액 입력"
+          className="w-28 h-9 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
+        />
+        <Button
+          size="sm"
+          onClick={applyPrice}
+          className="h-9 bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground"
+        >
+          적용
+        </Button>
+      </div>
 
       <Button variant="destructive" size="sm" onClick={onDelete} className="h-9">
         삭제

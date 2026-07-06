@@ -97,6 +97,7 @@ export default function Orders() {
         onStatusChange={(status) => bulkUpdate({ status })}
         onCourierChange={(courier) => bulkUpdate({ courier })}
         onChannelChange={(channel) => bulkUpdate({ channel })}
+        onPriceChange={(price) => bulkUpdate({ price })}
         onDelete={bulkDelete}
         onClear={() => setSelected([])}
       />
