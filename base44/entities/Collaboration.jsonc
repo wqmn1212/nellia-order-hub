@@ -98,6 +98,35 @@
     "notes": {
       "type": "string",
       "description": "\uba54\ubaa8 (\ud2b9\uc774\uc0ac\ud56d \ub4f1)"
+    },
+    "ig_likes": {
+      "type": "number",
+      "description": "\uc778\uc2a4\ud0c0 \uc88b\uc544\uc694 \uc218 (\uc790\ub3d9 \uc218\uc9d1)"
+    },
+    "ig_comments": {
+      "type": "number",
+      "description": "\uc778\uc2a4\ud0c0 \ub313\uae00 \uc218 (\uc790\ub3d9 \uc218\uc9d1)"
+    },
+    "ig_views": {
+      "type": "number",
+      "description": "\uc778\uc2a4\ud0c0 \uc870\ud68c\uc218 (\uc790\ub3d9 \uc218\uc9d1)"
+    },
+    "ig_reach": {
+      "type": "number",
+      "description": "\uc778\uc2a4\ud0c0 \ub3c4\ub2ec \uc218 (\uc790\ub3d9 \uc218\uc9d1)"
+    },
+    "ig_saves": {
+      "type": "number",
+      "description": "\uc778\uc2a4\ud0c0 \uc800\uc7a5 \uc218 (\uc790\ub3d9 \uc218\uc9d1)"
+    },
+    "ig_shares": {
+      "type": "number",
+      "description": "\uc778\uc2a4\ud0c0 \uacf5\uc720 \uc218 (\uc790\ub3d9 \uc218\uc9d1)"
+    },
+    "ig_synced_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\uc778\uc2a4\ud0c0 \uc9c0\ud45c \ub9c8\uc9c0\ub9c9 \uc218\uc9d1 \uc2dc\uac01"
     }
   },
   "required": [

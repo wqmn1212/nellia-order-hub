@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Heart, MessageCircle, Eye, Bookmark, Share2, Loader2, RefreshCw } from "lucide-react";
 import { COLLAB_TYPES, CONTENT_TYPES, SHIPMENT_TYPES, WORK_STATUS, PAYMENT_STATUS } from "./influencerConstants";
 
 export default function CollaborationForm({ collab, influencers, products, onSubmit, onCancel, isSaving }) {
@@ -21,9 +23,46 @@ export default function CollaborationForm({ collab, influencers, products, onSub
     payment_status: collab?.payment_status || "pending",
     published_date: collab?.published_date || "",
     notes: collab?.notes || "",
+    ig_likes: collab?.ig_likes,
+    ig_comments: collab?.ig_comments,
+    ig_views: collab?.ig_views,
+    ig_reach: collab?.ig_reach,
+    ig_saves: collab?.ig_saves,
+    ig_shares: collab?.ig_shares,
+    ig_synced_at: collab?.ig_synced_at || "",
   });
 
+  const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState("");
+
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
+
+  const fetchMetrics = async () => {
+    setFetchError("");
+    setFetching(true);
+    try {
+      const res = await base44.functions.invoke("fetchInstagramMetrics", { content_url: form.content_url });
+      const m = res.data?.metrics;
+      if (m) {
+        setForm((p) => ({
+          ...p,
+          ig_likes: m.likes,
+          ig_comments: m.comments,
+          ig_views: m.views,
+          ig_reach: m.reach,
+          ig_saves: m.saves,
+          ig_shares: m.shares,
+          ig_synced_at: m.fetched_at,
+        }));
+      }
+    } catch (err) {
+      setFetchError(err?.response?.data?.error || "지표를 가져오지 못했습니다.");
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  const hasMetrics = form.ig_synced_at;
 
   const handleSubmit = () => {
     const influencer = influencers.find((i) => i.id === form.influencer_id);
@@ -35,6 +74,7 @@ export default function CollaborationForm({ collab, influencers, products, onSub
       fee_agreed: form.fee_agreed ? Number(form.fee_agreed) : 0,
       giveaway_qty: form.giveaway_qty ? Number(form.giveaway_qty) : 0,
       published_date: form.published_date || undefined,
+      ig_synced_at: form.ig_synced_at || undefined,
     });
   };
 
@@ -139,6 +179,49 @@ export default function CollaborationForm({ collab, influencers, products, onSub
           <Label>콘텐츠 링크</Label>
           <Input value={form.content_url} onChange={(e) => set("content_url", e.target.value)} placeholder="릴스/영상/블로그 URL" />
         </div>
+      </div>
+
+      <div className="rounded-lg border border-border p-4 space-y-3 bg-secondary/20">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium">인스타그램 성과 지표</p>
+            <p className="text-xs text-muted-foreground">회사 공식 계정이 올린 게시물만 자동 수집됩니다</p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={fetchMetrics}
+            disabled={fetching || !form.content_url}
+          >
+            {fetching ? <Loader2 className="w-4 h-4 animate-spin" /> : (hasMetrics ? <RefreshCw className="w-4 h-4" /> : null)}
+            {fetching ? "가져오는 중..." : hasMetrics ? "새로고침" : "지표 가져오기"}
+          </Button>
+        </div>
+
+        {fetchError && <p className="text-xs text-destructive">{fetchError}</p>}
+
+        {hasMetrics && (
+          <>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {[
+                { icon: Heart, label: "좋아요", value: form.ig_likes },
+                { icon: MessageCircle, label: "댓글", value: form.ig_comments },
+                { icon: Eye, label: "조회수", value: form.ig_views },
+                { icon: Eye, label: "도달", value: form.ig_reach },
+                { icon: Bookmark, label: "저장", value: form.ig_saves },
+                { icon: Share2, label: "공유", value: form.ig_shares },
+              ].map((m) => (
+                <div key={m.label} className="rounded-md bg-background border border-border p-2 text-center">
+                  <m.icon className="w-3.5 h-3.5 mx-auto text-primary mb-1" />
+                  <p className="text-sm font-semibold">{(m.value ?? 0).toLocaleString()}</p>
+                  <p className="text-[10px] text-muted-foreground">{m.label}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground">마지막 수집: {new Date(form.ig_synced_at).toLocaleString("ko-KR")}</p>
+          </>
+        )}
       </div>
 
       <div>
