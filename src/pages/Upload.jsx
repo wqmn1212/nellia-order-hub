@@ -142,12 +142,12 @@ export default function Upload() {
       </Card>
 
       <div className="mt-8 text-xs text-muted-foreground space-y-1.5">
-        <p className="font-medium text-foreground">📋 엑셀 열 매핑 규칙 (첫 행은 헤더로 제외)</p>
-        <p>• A열 = 받으시는분(이름) · B열 = 연락처</p>
-        <p>• E열 = 우편번호 · F열 = 주소</p>
-        <p>• G열 = 수량 · H열 = 품목명</p>
-        <p>• I열 = 운임타입(메모로 기록) · M열 = 배송메모</p>
-        <p className="pt-1">• 업로드 후 주문 관리 페이지에서 내용을 확인·수정할 수 있습니다</p>
+        <p className="font-medium text-foreground">📋 엑셀 헤더 매핑 규칙 (운송장 양식)</p>
+        <p>• 받는분 → 이름 · 받는분전화 → 연락처</p>
+        <p>• 받는분우편번호 → 우편번호 · 받는분주소 → 주소</p>
+        <p>• 수량 → 수량 · 품목명 → 품목명</p>
+        <p>• 운임Type → 운임타입(메모 기록) · 메모1 → 배송메모</p>
+        <p className="pt-1">• 헤더 이름으로 자동 인식하므로 열 순서가 달라도 됩니다</p>
       </div>
     </div>
   );

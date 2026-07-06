@@ -1,23 +1,24 @@
 import * as XLSX from "xlsx";
 
-// 고정 열 매핑 규칙 (0-based 인덱스)
-// A(0)=받으시는분, B(1)=연락처, E(4)=우편번호, F(5)=주소,
-// G(6)=수량, H(7)=품목명, I(8)=운임타입, M(12)=배송메모
-const COL = {
-  customer_name: 0,
-  customer_phone: 1,
-  customer_zipcode: 4,
-  customer_address: 5,
-  quantity: 6,
-  product_name: 7,
-  shipping_type: 8,
-  delivery_memo: 12,
+// 실제 운송장 엑셀 양식의 헤더명 기준 매핑 (열 위치가 밀려도 안전)
+// 받는분→이름, 받는분전화→연락처, 받는분우편번호→우편번호, 받는분주소→주소,
+// 수량→수량, 품목명→품목명, 운임Type→운임타입(메모 기록), 메모1→배송메모
+const HEADER_MAP = {
+  customer_name: ["받는분"],
+  customer_phone: ["받는분전화", "받는분핸드폰"],
+  customer_zipcode: ["받는분우편번호"],
+  customer_address: ["받는분주소"],
+  quantity: ["수량"],
+  product_name: ["품목명", "내품명1"],
+  shipping_type: ["운임Type", "운임타입"],
+  delivery_memo: ["메모1"],
+  order_number: ["운송장번호", "주문번호1"],
 };
 
-const cell = (row, idx) => {
-  const v = row[idx];
+const clean = (v) => {
   if (v == null) return "";
-  return String(v).trim();
+  const s = String(v).trim();
+  return s === "null" ? "" : s;
 };
 
 const toNum = (v) => {
@@ -26,34 +27,53 @@ const toNum = (v) => {
   return isNaN(n) ? undefined : n;
 };
 
-// 파일(File)을 읽어 지정된 열 규칙대로 주문 배열을 반환한다.
+// 헤더 행에서 각 필드에 해당하는 열 인덱스를 찾는다.
+function buildColumnIndex(headerRow) {
+  const idx = {};
+  const headers = headerRow.map((h) => clean(h));
+  for (const [field, names] of Object.entries(HEADER_MAP)) {
+    for (const name of names) {
+      const found = headers.indexOf(name);
+      if (found !== -1) {
+        idx[field] = found;
+        break;
+      }
+    }
+  }
+  return idx;
+}
+
+// 파일(File)을 읽어 주문 배열을 반환한다.
 export async function parseOrderExcel(file) {
   const buffer = await file.arrayBuffer();
   const workbook = XLSX.read(buffer, { type: "array" });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  // header: 1 → 각 행을 배열로 반환 (셀 위치 그대로 인덱스 접근)
   const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: "" });
 
-  // 첫 행은 헤더로 간주하고 건너뜀
-  const dataRows = rows.slice(1);
+  if (!rows.length) return [];
 
-  return dataRows
+  const colIdx = buildColumnIndex(rows[0]);
+  const get = (row, field) => (colIdx[field] != null ? clean(row[colIdx[field]]) : "");
+
+  return rows
+    .slice(1)
     .map((row) => {
-      const customer_name = cell(row, COL.customer_name);
-      const product_name = cell(row, COL.product_name);
-      // 이름과 품목명이 모두 비어있으면 빈 행으로 판단하여 제외
+      const customer_name = get(row, "customer_name");
+      const product_name = get(row, "product_name");
       if (!customer_name && !product_name) return null;
 
-      const shippingType = cell(row, COL.shipping_type);
+      const shippingType = get(row, "shipping_type");
+      const order_number = get(row, "order_number");
 
       return {
+        order_number: order_number || undefined,
         customer_name: customer_name || "미상",
-        customer_phone: cell(row, COL.customer_phone) || undefined,
-        customer_zipcode: cell(row, COL.customer_zipcode) || undefined,
-        customer_address: cell(row, COL.customer_address) || undefined,
-        quantity: toNum(cell(row, COL.quantity)) ?? 1,
+        customer_phone: get(row, "customer_phone") || undefined,
+        customer_zipcode: get(row, "customer_zipcode") || undefined,
+        customer_address: get(row, "customer_address") || undefined,
+        quantity: toNum(get(row, "quantity")) ?? 1,
         product_name: product_name || "미상",
-        delivery_memo: cell(row, COL.delivery_memo) || undefined,
+        delivery_memo: get(row, "delivery_memo") || undefined,
         notes: shippingType ? `운임타입: ${shippingType}` : undefined,
       };
     })
