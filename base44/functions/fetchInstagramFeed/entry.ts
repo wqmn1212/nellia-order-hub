@@ -30,27 +30,28 @@ Deno.serve(async (req) => {
       return Response.json({ error: '미디어 목록 조회 실패', detail: list.error }, { status: 400 });
     }
 
-    // 3) For each post, pull insights (reach/saved/shares/views)
+    // 3) For each post, pull insights (reach/saved/shares/views).
+    // Metrics differ per media type, so request each individually and skip unsupported/blocked ones.
     const posts = [];
-    let insightError = null;
+    let insightsBlocked = false;
+    const metricNames = ['reach', 'saved', 'shares', 'views'];
     for (const item of (list.data || [])) {
-      let reach = 0, saves = 0, shares = 0, views = 0;
-      try {
-        const insRes = await fetch(
-          `https://graph.instagram.com/${item.id}/insights?metric=reach,saved,shares,views&access_token=${accessToken}`
-        );
-        const ins = await insRes.json();
-        if (ins.error && !insightError) insightError = ins.error;
-        if (Array.isArray(ins.data)) {
-          for (const m of ins.data) {
-            const v = m.values?.[0]?.value ?? 0;
-            if (m.name === 'reach') reach = v;
-            else if (m.name === 'saved') saves = v;
-            else if (m.name === 'shares') shares = v;
-            else if (m.name === 'views') views = v;
+      const metrics = { reach: 0, saved: 0, shares: 0, views: 0 };
+      for (const name of metricNames) {
+        try {
+          const insRes = await fetch(
+            `https://graph.instagram.com/${item.id}/insights?metric=${name}&access_token=${accessToken}`
+          );
+          const ins = await insRes.json();
+          if (ins.error) {
+            if (ins.error.code === 10) insightsBlocked = true;
+            continue;
           }
-        }
-      } catch { /* insights not available for this media type */ }
+          const val = ins.data?.[0]?.values?.[0]?.value ?? ins.data?.[0]?.total_value?.value ?? 0;
+          metrics[name] = val;
+        } catch { /* skip this metric */ }
+      }
+      const reach = metrics.reach, saves = metrics.saved, shares = metrics.shares, views = metrics.views;
 
       posts.push({
         id: item.id,
@@ -73,7 +74,7 @@ Deno.serve(async (req) => {
       success: true,
       username: me.username,
       fetched_at: new Date().toISOString(),
-      insight_error: insightError,
+      insights_blocked: insightsBlocked,
       posts,
     });
   } catch (error) {

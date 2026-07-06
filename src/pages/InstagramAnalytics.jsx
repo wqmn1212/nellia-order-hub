@@ -11,6 +11,7 @@ export default function InstagramAnalytics() {
   const [posts, setPosts] = useState([]);
   const [username, setUsername] = useState("");
   const [fetchedAt, setFetchedAt] = useState("");
+  const [insightsBlocked, setInsightsBlocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -22,6 +23,7 @@ export default function InstagramAnalytics() {
       setPosts(res.data?.posts || []);
       setUsername(res.data?.username || "");
       setFetchedAt(res.data?.fetched_at || "");
+      setInsightsBlocked(!!res.data?.insights_blocked);
     } catch (err) {
       setError(err?.response?.data?.error || "게시물을 불러오지 못했습니다.");
     } finally {
@@ -53,6 +55,16 @@ export default function InstagramAnalytics() {
       {error && (
         <Card className="p-4 flex items-center gap-2 text-sm text-amber-600 dark:text-amber-500 border-amber-200">
           <AlertCircle className="w-4 h-4" /> {error}
+        </Card>
+      )}
+
+      {insightsBlocked && (
+        <Card className="p-4 flex items-start gap-2 text-sm text-amber-700 dark:text-amber-500 border-amber-200 bg-amber-50/50">
+          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          <span>
+            좋아요·댓글은 정상 수집되지만, 조회수·도달·저장·공유(인사이트)는 인스타그램(메타) 앱 검수 승인 후에만 제공됩니다.
+            메타 개발자 대시보드에서 <b>instagram_business_manage_insights</b> 권한 검수가 완료되면 자동으로 표시됩니다.
+          </span>
         </Card>
       )}
 
