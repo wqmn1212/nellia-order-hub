@@ -57,8 +57,8 @@ export default function Orders() {
   const toggleAll = () =>
     setSelected(selected.length === filtered.length ? [] : filtered.map((o) => o.id));
 
-  const bulkStatus = async (status) => {
-    await Promise.all(selected.map((id) => updateMutation.mutateAsync({ id, data: { status } })));
+  const bulkUpdate = async (data) => {
+    await Promise.all(selected.map((id) => updateMutation.mutateAsync({ id, data })));
     setSelected([]);
   };
 
@@ -94,7 +94,9 @@ export default function Orders() {
 
       <BulkActions
         selectedCount={selected.length}
-        onStatusChange={bulkStatus}
+        onStatusChange={(status) => bulkUpdate({ status })}
+        onCourierChange={(courier) => bulkUpdate({ courier })}
+        onChannelChange={(channel) => bulkUpdate({ channel })}
         onDelete={bulkDelete}
         onClear={() => setSelected([])}
       />

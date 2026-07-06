@@ -1,20 +1,26 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { STATUSES } from "@/components/shared/constants";
+import { STATUSES, COURIERS } from "@/components/shared/constants";
+import { useChannels } from "@/components/shared/useChannels";
 import { X } from "lucide-react";
 
-export default function BulkActions({ selectedCount, onStatusChange, onDelete, onClear }) {
+const triggerClass = "w-36 h-9 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground";
+
+export default function BulkActions({ selectedCount, onStatusChange, onCourierChange, onChannelChange, onDelete, onClear }) {
+  const { channels } = useChannels();
+
   if (selectedCount === 0) return null;
 
   return (
-    <div className="sticky top-4 z-20 mb-4 bg-primary text-primary-foreground rounded-xl px-5 py-3 shadow-lg flex items-center gap-4 flex-wrap">
+    <div className="sticky top-4 z-20 mb-4 bg-primary text-primary-foreground rounded-xl px-5 py-3 shadow-lg flex items-center gap-3 flex-wrap">
       <span className="text-sm font-medium">
         <span className="font-serif text-lg">{selectedCount}</span>건 선택됨
       </span>
       <div className="flex-1" />
+
       <Select onValueChange={onStatusChange}>
-        <SelectTrigger className="w-40 h-9 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground">
+        <SelectTrigger className={triggerClass}>
           <SelectValue placeholder="상태 변경" />
         </SelectTrigger>
         <SelectContent>
@@ -23,12 +29,30 @@ export default function BulkActions({ selectedCount, onStatusChange, onDelete, o
           ))}
         </SelectContent>
       </Select>
-      <Button
-        variant="destructive"
-        size="sm"
-        onClick={onDelete}
-        className="h-9"
-      >
+
+      <Select onValueChange={onCourierChange}>
+        <SelectTrigger className={triggerClass}>
+          <SelectValue placeholder="택배사 변경" />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(COURIERS).map(([k, label]) => (
+            <SelectItem key={k} value={k}>{label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select onValueChange={onChannelChange}>
+        <SelectTrigger className={triggerClass}>
+          <SelectValue placeholder="채널 변경" />
+        </SelectTrigger>
+        <SelectContent>
+          {channels.map((c) => (
+            <SelectItem key={c.key} value={c.key}>{c.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Button variant="destructive" size="sm" onClick={onDelete} className="h-9">
         삭제
       </Button>
       <Button
