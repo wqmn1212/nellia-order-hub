@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,11 +12,20 @@ export default function Inventory() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [adjustProduct, setAdjustProduct] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["inventory-products"],
     queryFn: () => base44.entities.Product.list("-created_date", 500),
   });
+
+  // 주문 출고 등으로 서버 재고가 변경되면 실시간으로 화면 갱신
+  useEffect(() => {
+    const unsubscribe = base44.entities.Product.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ["inventory-products"] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
 
   const filtered = products.filter((p) => {
     const matchSearch =
