@@ -30,8 +30,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: '인스타그램 계정 정보를 가져오지 못했습니다.', detail: me }, { status: 400 });
     }
 
-    // 2) List the account's media and find the one matching the shortcode via permalink
+    // 2) List the account's own media and try to find the post by permalink shortcode.
+    // NOTE: Instagram "collab" (co-authored) posts belong to the ORIGINAL author's account
+    // and do NOT appear in a collaborator's /media list, so they can't be found here.
     let media = null;
+    let scannedAny = false;
     let nextUrl = `https://graph.instagram.com/${me.id}/media?fields=id,permalink,media_type,caption,timestamp&limit=50&access_token=${accessToken}`;
     let pages = 0;
     while (nextUrl && pages < 10) {
@@ -40,6 +43,7 @@ Deno.serve(async (req) => {
       if (list.error) {
         return Response.json({ error: '미디어 목록 조회 실패', detail: list.error }, { status: 400 });
       }
+      scannedAny = true;
       const found = (list.data || []).find((item) => (item.permalink || '').includes(`/${shortcode}`));
       if (found) { media = found; break; }
       nextUrl = list.paging?.next || null;
@@ -48,7 +52,9 @@ Deno.serve(async (req) => {
 
     if (!media) {
       return Response.json({
-        error: '연결된 계정에서 해당 게시물을 찾지 못했습니다. 회사 공식 계정이 올린 게시물만 지표를 가져올 수 있습니다.',
+        error: '이 게시물은 공식 계정 소유가 아니라 자동 수집이 불가합니다. 공동 작업(협업) 게시물은 원작성자 계정에만 속하므로 지표를 직접 입력해 주세요.',
+        code: 'not_owned',
+        scanned: scannedAny,
       }, { status: 404 });
     }
 

@@ -62,7 +62,17 @@ export default function CollaborationForm({ collab, influencers, products, onSub
     }
   };
 
+  const setMetric = (k, v) => setForm((p) => ({ ...p, [k]: v === "" ? undefined : Number(v), ig_synced_at: p.ig_synced_at || new Date().toISOString() }));
+
   const hasMetrics = form.ig_synced_at;
+  const metricFields = [
+    { key: "ig_likes", icon: Heart, label: "좋아요" },
+    { key: "ig_comments", icon: MessageCircle, label: "댓글" },
+    { key: "ig_views", icon: Eye, label: "조회수" },
+    { key: "ig_reach", icon: Eye, label: "도달" },
+    { key: "ig_saves", icon: Bookmark, label: "저장" },
+    { key: "ig_shares", icon: Share2, label: "공유" },
+  ];
 
   const handleSubmit = () => {
     const influencer = influencers.find((i) => i.id === form.influencer_id);
@@ -185,7 +195,7 @@ export default function CollaborationForm({ collab, influencers, products, onSub
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium">인스타그램 성과 지표</p>
-            <p className="text-xs text-muted-foreground">회사 공식 계정이 올린 게시물만 자동 수집됩니다</p>
+            <p className="text-xs text-muted-foreground">공식 계정 게시물은 자동 수집, 협업 게시물은 직접 입력하세요</p>
           </div>
           <Button
             type="button"
@@ -195,32 +205,31 @@ export default function CollaborationForm({ collab, influencers, products, onSub
             disabled={fetching || !form.content_url}
           >
             {fetching ? <Loader2 className="w-4 h-4 animate-spin" /> : (hasMetrics ? <RefreshCw className="w-4 h-4" /> : null)}
-            {fetching ? "가져오는 중..." : hasMetrics ? "새로고침" : "지표 가져오기"}
+            {fetching ? "가져오는 중..." : hasMetrics ? "다시 수집" : "지표 가져오기"}
           </Button>
         </div>
 
-        {fetchError && <p className="text-xs text-destructive">{fetchError}</p>}
+        {fetchError && (
+          <p className="text-xs text-amber-600 dark:text-amber-500">{fetchError}</p>
+        )}
 
-        {hasMetrics && (
-          <>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {[
-                { icon: Heart, label: "좋아요", value: form.ig_likes },
-                { icon: MessageCircle, label: "댓글", value: form.ig_comments },
-                { icon: Eye, label: "조회수", value: form.ig_views },
-                { icon: Eye, label: "도달", value: form.ig_reach },
-                { icon: Bookmark, label: "저장", value: form.ig_saves },
-                { icon: Share2, label: "공유", value: form.ig_shares },
-              ].map((m) => (
-                <div key={m.label} className="rounded-md bg-background border border-border p-2 text-center">
-                  <m.icon className="w-3.5 h-3.5 mx-auto text-primary mb-1" />
-                  <p className="text-sm font-semibold">{(m.value ?? 0).toLocaleString()}</p>
-                  <p className="text-[10px] text-muted-foreground">{m.label}</p>
-                </div>
-              ))}
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {metricFields.map((m) => (
+            <div key={m.key} className="rounded-md bg-background border border-border p-2 text-center">
+              <m.icon className="w-3.5 h-3.5 mx-auto text-primary mb-1" />
+              <Input
+                type="number"
+                value={form[m.key] ?? ""}
+                onChange={(e) => setMetric(m.key, e.target.value)}
+                placeholder="0"
+                className="h-7 text-center text-sm px-1 border-0 shadow-none focus-visible:ring-1"
+              />
+              <p className="text-[10px] text-muted-foreground">{m.label}</p>
             </div>
-            <p className="text-[10px] text-muted-foreground">마지막 수집: {new Date(form.ig_synced_at).toLocaleString("ko-KR")}</p>
-          </>
+          ))}
+        </div>
+        {hasMetrics && (
+          <p className="text-[10px] text-muted-foreground">마지막 업데이트: {new Date(form.ig_synced_at).toLocaleString("ko-KR")}</p>
         )}
       </div>
 
