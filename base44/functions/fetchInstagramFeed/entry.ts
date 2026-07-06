@@ -32,6 +32,7 @@ Deno.serve(async (req) => {
 
     // 3) For each post, pull insights (reach/saved/shares/views)
     const posts = [];
+    let insightError = null;
     for (const item of (list.data || [])) {
       let reach = 0, saves = 0, shares = 0, views = 0;
       try {
@@ -39,6 +40,7 @@ Deno.serve(async (req) => {
           `https://graph.instagram.com/${item.id}/insights?metric=reach,saved,shares,views&access_token=${accessToken}`
         );
         const ins = await insRes.json();
+        if (ins.error && !insightError) insightError = ins.error;
         if (Array.isArray(ins.data)) {
           for (const m of ins.data) {
             const v = m.values?.[0]?.value ?? 0;
@@ -71,6 +73,7 @@ Deno.serve(async (req) => {
       success: true,
       username: me.username,
       fetched_at: new Date().toISOString(),
+      insight_error: insightError,
       posts,
     });
   } catch (error) {
