@@ -112,7 +112,23 @@ export default function Reviews() {
                   {r.product_name && <span className="text-xs text-muted-foreground">· {r.product_name}</span>}
                   {r.reviewer_name && <span className="text-xs text-muted-foreground">· {r.reviewer_name}</span>}
                 </div>
+                {r.reviewer_name && (r.customer_phone || r.customer_address) && (
+                  <p className="text-xs text-muted-foreground mb-1.5">
+                    {r.customer_phone && <span>{r.customer_phone}</span>}
+                    {r.customer_phone && r.customer_address && <span> · </span>}
+                    {r.customer_address && <span>{r.customer_address}</span>}
+                  </p>
+                )}
                 <p className="text-sm text-foreground/90 line-clamp-3">{r.content}</p>
+                {r.image_urls?.length > 0 && (
+                  <div className="flex gap-1.5 flex-wrap mt-2">
+                    {r.image_urls.map((url, i) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="w-14 h-14 rounded-md overflow-hidden border">
+                        <img src={url} alt={`후기 사진 ${i + 1}`} className="w-full h-full object-cover" />
+                      </a>
+                    ))}
+                  </div>
+                )}
                 {r.keywords?.length > 0 && (
                   <div className="flex gap-1.5 flex-wrap mt-2">
                     {r.keywords.map((k, i) => <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">#{k}</span>)}
