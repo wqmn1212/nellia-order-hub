@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Upload as UploadIcon, FileSpreadsheet, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { CHANNELS } from "@/components/shared/constants";
 import { parseOrderExcel } from "@/lib/parseOrderExcel";
+import { useDropPaste } from "@/hooks/useDropPaste";
 
 export default function Upload() {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ export default function Upload() {
   const [status, setStatus] = useState("idle"); // idle | uploading | extracting | success | error
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+
+  const { isDragging, dropHandlers } = useDropPaste((files) => setFile(files[0] || null));
 
   const handleUpload = async () => {
     if (!file || !channel) {
@@ -79,8 +82,8 @@ export default function Upload() {
 
           <div className="space-y-2">
             <Label className="text-xs uppercase tracking-wider text-muted-foreground">주문 파일 *</Label>
-            <label className="block">
-              <div className="border-2 border-dashed border-border rounded-xl p-10 text-center hover:border-primary/50 hover:bg-secondary/30 transition-all cursor-pointer">
+            <label className="block" {...dropHandlers}>
+              <div className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer ${isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-secondary/30"}`}>
                 <FileSpreadsheet className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
                 {file ? (
                   <div>
@@ -91,7 +94,7 @@ export default function Upload() {
                   </div>
                 ) : (
                   <div>
-                    <p className="font-medium text-foreground">파일 선택 또는 드래그</p>
+                    <p className="font-medium text-foreground">파일 선택 · 드래그 · 붙여넣기</p>
                     <p className="text-xs text-muted-foreground mt-1">CSV, XLSX, XLS 지원</p>
                   </div>
                 )}

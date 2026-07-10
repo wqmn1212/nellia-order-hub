@@ -1,16 +1,15 @@
 import React, { useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ImagePlus, X, Loader2 } from "lucide-react";
+import { useDropPaste } from "@/hooks/useDropPaste";
 
 export default function ReviewImageUploader({ urls = [], onChange }) {
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
 
-  const handleFiles = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+  const uploadFiles = async (files) => {
+    if (!files.length) return;
     setUploading(true);
     try {
       const uploaded = [];
@@ -25,12 +24,18 @@ export default function ReviewImageUploader({ urls = [], onChange }) {
     }
   };
 
+  const { isDragging, dropHandlers } = useDropPaste(uploadFiles, { imagesOnly: true });
+
+  const handleFiles = (e) => uploadFiles(Array.from(e.target.files || []));
   const remove = (i) => onChange(urls.filter((_, idx) => idx !== i));
 
   return (
     <div>
-      <Label>사진 (여러 장 첨부 가능)</Label>
-      <div className="flex flex-wrap gap-2 mt-1.5">
+      <Label>사진 (여러 장 첨부 · 드래그·붙여넣기 가능)</Label>
+      <div
+        {...dropHandlers}
+        className={`flex flex-wrap gap-2 mt-1.5 rounded-lg transition-colors ${isDragging ? "ring-2 ring-primary ring-offset-2 bg-primary/5 p-2" : ""}`}
+      >
         {urls.map((url, i) => (
           <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border group">
             <img src={url} alt={`후기 사진 ${i + 1}`} className="w-full h-full object-cover" />

@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from "@/api/base44Client";
 import { Loader2, Upload, X, ImagePlus } from "lucide-react";
+import { useDropPaste } from "@/hooks/useDropPaste";
 
 const CATEGORIES = {
   hair_dryer: "헤어드라이어",
@@ -43,19 +44,25 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
 
   const set = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
-  const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files || []);
+  const uploadFiles = async (files) => {
     if (!files.length) return;
     const remaining = 20 - images.length;
     const toUpload = files.slice(0, remaining);
+    if (!toUpload.length) return;
     setUploadingCount(toUpload.length);
     const results = await Promise.all(
       toUpload.map((file) => base44.integrations.Core.UploadFile({ file }))
     );
     setImages((prev) => [...prev, ...results.map((r) => r.file_url)]);
     setUploadingCount(0);
+  };
+
+  const handleImageUpload = async (e) => {
+    await uploadFiles(Array.from(e.target.files || []));
     e.target.value = "";
   };
+
+  const { isDragging, dropHandlers } = useDropPaste(uploadFiles, { imagesOnly: true });
 
   const removeImage = (idx) => setImages((prev) => prev.filter((_, i) => i !== idx));
 
@@ -106,7 +113,10 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
           <span className="text-xs text-muted-foreground">{images.length} / 20</span>
         </div>
 
-        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+        <div
+          {...dropHandlers}
+          className={`grid grid-cols-4 sm:grid-cols-5 gap-2 rounded-lg transition-colors ${isDragging ? "ring-2 ring-primary ring-offset-2 bg-primary/5 p-2" : ""}`}
+        >
           {images.map((url, idx) => (
             <div key={idx} className="relative group aspect-square">
               <img src={url} alt={`이미지 ${idx + 1}`} className="w-full h-full object-cover rounded-lg border border-border" />
@@ -147,7 +157,7 @@ export default function ProductForm({ product, onSubmit, onCancel, isLoading }) 
             </label>
           )}
         </div>
-        <p className="text-[11px] text-muted-foreground">첫 번째 이미지가 대표 이미지로 사용됩니다. 여러 파일을 한 번에 선택할 수 있습니다.</p>
+        <p className="text-[11px] text-muted-foreground">첫 번째 이미지가 대표 이미지로 사용됩니다. 파일 선택·드래그앤드롭·클립보드 붙여넣기 모두 가능합니다.</p>
       </div>
 
       <div className="space-y-1.5">

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Upload, Trash2, Check, Loader2, ImagePlus, User } from "lucide-react";
+import { useDropPaste } from "@/hooks/useDropPaste";
 
 export default function ShotLibrary({ type, shots, productId, selectedUrls, onToggleSelect }) {
   const queryClient = useQueryClient();
@@ -16,6 +17,13 @@ export default function ShotLibrary({ type, shots, productId, selectedUrls, onTo
   const [uploading, setUploading] = useState(false);
 
   const isProduct = type === "product";
+
+  const acceptFile = (files) => {
+    const f = files[0];
+    if (f) { setPendingFile(f); if (!name) setName(f.name.replace(/\.[^.]+$/, "")); }
+  };
+  // 붙여넣기는 제품 라이브러리에서만 구독 (한 화면에 product/model 2개가 렌더되므로 중복 방지)
+  const { isDragging, dropHandlers } = useDropPaste(acceptFile, { imagesOnly: true, pasteEnabled: isProduct });
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -54,7 +62,10 @@ export default function ShotLibrary({ type, shots, productId, selectedUrls, onTo
       </div>
 
       {/* 업로드 영역 */}
-      <div className="rounded-lg border border-dashed border-border p-3 space-y-2.5">
+      <div
+        {...dropHandlers}
+        className={`rounded-lg border border-dashed p-3 space-y-2.5 transition-colors ${isDragging ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-border"}`}
+      >
         <input
           ref={fileRef}
           type="file"
@@ -67,7 +78,7 @@ export default function ShotLibrary({ type, shots, productId, selectedUrls, onTo
         />
         {!pendingFile ? (
           <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => fileRef.current?.click()}>
-            <Upload className="w-3.5 h-3.5" /> 이미지 선택
+            <Upload className="w-3.5 h-3.5" /> 이미지 선택 · 드래그 · 붙여넣기
           </Button>
         ) : (
           <div className="space-y-2">

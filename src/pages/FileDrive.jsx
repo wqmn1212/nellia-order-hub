@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FolderOpen, Folder, FileText, Image, Film, FileArchive, Upload, Plus, Trash2, Download, Search, MoreVertical } from "lucide-react";
+import { useDropPaste } from "@/hooks/useDropPaste";
 
 function getFileIcon(mimeType) {
   if (!mimeType) return FileText;
@@ -51,14 +52,13 @@ export default function FileDrive() {
     return true;
   });
 
-  const handleUpload = async (e) => {
-    const selectedFiles = Array.from(e.target.files || []);
+  const uploadFiles = async (selectedFiles) => {
     if (!selectedFiles.length) return;
     setUploading(true);
     for (const file of selectedFiles) {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       await base44.entities.DriveFile.create({
-        name: file.name,
+        name: file.name || "붙여넣은 파일",
         file_url,
         folder: selectedFolder,
         mime_type: file.type,
@@ -67,8 +67,14 @@ export default function FileDrive() {
     }
     queryClient.invalidateQueries({ queryKey: ["drive-files"] });
     setUploading(false);
+  };
+
+  const handleUpload = async (e) => {
+    await uploadFiles(Array.from(e.target.files || []));
     e.target.value = "";
   };
+
+  const { isDragging, dropHandlers } = useDropPaste(uploadFiles);
 
   const handleFolderUpload = async (e) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -142,7 +148,13 @@ export default function FileDrive() {
       </aside>
 
       {/* 메인 파일 영역 */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 relative" {...dropHandlers}>
+        {isDragging && (
+          <div className="absolute inset-0 z-20 bg-primary/10 border-2 border-dashed border-primary rounded-lg m-2 flex flex-col items-center justify-center pointer-events-none">
+            <Upload className="w-12 h-12 text-primary mb-2" />
+            <p className="text-sm font-medium text-primary">여기에 파일을 놓으세요 · "{selectedFolder}" 폴더에 업로드됩니다</p>
+          </div>
+        )}
         {/* 헤더 */}
         <div className="px-6 py-4 border-b border-border flex items-center gap-3 bg-card/60 shrink-0">
           <div className="flex-1 relative">
@@ -197,7 +209,7 @@ export default function FileDrive() {
               onClick={() => fileInputRef.current?.click()}
             >
               <Upload className="w-10 h-10 text-muted-foreground/40 mb-3" />
-              <p className="text-sm text-muted-foreground">파일을 업로드하려면 클릭하세요</p>
+              <p className="text-sm text-muted-foreground">클릭 · 드래그앤드롭 · 붙여넣기로 업로드</p>
               <p className="text-xs text-muted-foreground/60 mt-1">이미지, PDF, 문서 등 모든 파일 지원</p>
             </div>
           ) : (

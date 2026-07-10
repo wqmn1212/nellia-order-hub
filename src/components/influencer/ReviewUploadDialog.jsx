@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, FileSpreadsheet, Loader2, AlertTriangle } from "lucide-react";
 import { parseReviewExcel } from "@/lib/parseReviewExcel";
 import { REVIEW_SOURCES } from "./influencerConstants";
+import { useDropPaste } from "@/hooks/useDropPaste";
 
 export default function ReviewUploadDialog({ open, onOpenChange, existingReviews = [], onImported }) {
   const inputRef = useRef(null);
@@ -16,8 +17,7 @@ export default function ReviewUploadDialog({ open, onOpenChange, existingReviews
 
   const reset = () => { setRows([]); setFileName(""); };
 
-  const handleFile = async (e) => {
-    const file = e.target.files?.[0];
+  const processFile = async (file) => {
     if (!file) return;
     setParsing(true);
     setFileName(file.name);
@@ -40,6 +40,9 @@ export default function ReviewUploadDialog({ open, onOpenChange, existingReviews
       if (inputRef.current) inputRef.current.value = "";
     }
   };
+
+  const handleFile = (e) => processFile(e.target.files?.[0]);
+  const { isDragging, dropHandlers } = useDropPaste((files) => processFile(files[0]), { pasteEnabled: open && rows.length === 0 });
 
   const toggle = (i) => setRows((prev) => prev.map((r, idx) => idx === i ? { ...r, checked: !r.checked } : r));
   const setAll = (val) => setRows((prev) => prev.map((r) => ({ ...r, checked: val && !r.isDup ? true : val })));
@@ -75,7 +78,8 @@ export default function ReviewUploadDialog({ open, onOpenChange, existingReviews
         {rows.length === 0 ? (
           <div
             onClick={() => inputRef.current?.click()}
-            className="border-2 border-dashed rounded-xl p-12 text-center cursor-pointer hover:border-primary transition-colors"
+            {...dropHandlers}
+            className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${isDragging ? "border-primary bg-primary/5" : "hover:border-primary"}`}
           >
             {parsing ? (
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -85,7 +89,7 @@ export default function ReviewUploadDialog({ open, onOpenChange, existingReviews
             ) : (
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                 <FileSpreadsheet className="w-10 h-10" />
-                <p className="font-medium text-foreground">엑셀 파일을 선택하세요</p>
+                <p className="font-medium text-foreground">엑셀 파일 선택 · 드래그 · 붙여넣기</p>
                 <p className="text-sm">품명·채널·주문번호·구매자·연락처·주소 열을 자동 인식합니다</p>
               </div>
             )}
