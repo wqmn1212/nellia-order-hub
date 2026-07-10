@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Sparkles, Star, MessageSquare, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Plus, Sparkles, Star, MessageSquare, ThumbsUp, ThumbsDown, Upload } from "lucide-react";
 import ReviewForm from "@/components/influencer/ReviewForm";
+import ReviewUploadDialog from "@/components/influencer/ReviewUploadDialog";
 import { REVIEW_SOURCES, SENTIMENTS, REVIEW_STATUS } from "@/components/influencer/influencerConstants";
 
 const Badge = ({ config }) => config ? <span className={`text-xs px-2 py-0.5 rounded-full ${config.color}`}>{config.label}</span> : null;
@@ -14,6 +15,7 @@ const Badge = ({ config }) => config ? <span className={`text-xs px-2 py-0.5 rou
 export default function Reviews() {
   const qc = useQueryClient();
   const [dialog, setDialog] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [sourceFilter, setSourceFilter] = useState("all");
   const [sentimentFilter, setSentimentFilter] = useState("all");
@@ -65,7 +67,10 @@ export default function Reviews() {
           <h1 className="text-2xl font-serif text-foreground">후기 통합 관리</h1>
           <p className="text-sm text-muted-foreground mt-1">블로그·네이버·쿠팡·자사몰 후기를 모아 AI로 감정과 키워드를 분석합니다</p>
         </div>
-        <Button onClick={() => { setEditing(null); setDialog(true); }}><Plus className="w-4 h-4" /> 후기 추가</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setUploadOpen(true)}><Upload className="w-4 h-4" /> 엑셀 업로드</Button>
+          <Button onClick={() => { setEditing(null); setDialog(true); }}><Plus className="w-4 h-4" /> 후기 추가</Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -153,6 +158,13 @@ export default function Reviews() {
           <ReviewForm review={editing} products={products} onSubmit={(d) => save.mutate(d)} onCancel={() => setDialog(false)} isSaving={save.isPending} />
         </DialogContent>
       </Dialog>
+
+      <ReviewUploadDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        existingReviews={reviews}
+        onImported={() => qc.invalidateQueries({ queryKey: ["reviews"] })}
+      />
     </div>
   );
 }
