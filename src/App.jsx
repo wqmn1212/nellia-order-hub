@@ -30,6 +30,7 @@ import Inventory from '@/pages/Inventory';
 import Influencers from '@/pages/Influencers';
 import Reviews from '@/pages/Reviews';
 import InstagramAnalytics from '@/pages/InstagramAnalytics';
+import GroupBuying from '@/pages/GroupBuying';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -75,6 +76,7 @@ const AuthenticatedApp = () => {
         <Route path="/drive" element={<RoleGuard><FileDrive /></RoleGuard>} />
         <Route path="/cs-tickets" element={<RoleGuard><CsTickets /></RoleGuard>} />
         <Route path="/profitability" element={<RoleGuard><Profitability /></RoleGuard>} />
+        <Route path="/group-buying" element={<RoleGuard><GroupBuying /></RoleGuard>} />
         <Route path="/ad-hub" element={<RoleGuard><AdHub /></RoleGuard>} />
         <Route path="/image-studio" element={<RoleGuard><ImageStudio /></RoleGuard>} />
         <Route path="/inventory" element={<RoleGuard><Inventory /></RoleGuard>} />

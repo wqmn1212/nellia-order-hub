@@ -1,0 +1,76 @@
+{
+  "name": "GroupBuy",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "\uacf5\ub3d9\uad6c\ub9e4\uba85"
+    },
+    "product_id": {
+      "type": "string",
+      "description": "\uc5f0\uacb0\ub41c \uc81c\ud488 ID"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "\uc81c\ud488\uba85"
+    },
+    "partner_name": {
+      "type": "string",
+      "description": "\uacf5\ub3d9\uad6c\ub9e4 \uc9c4\ud589\ucc98 \ub610\ub294 \ud30c\ud2b8\ub108"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "active",
+        "completed"
+      ],
+      "default": "planned",
+      "description": "\uc9c4\ud589 \uc0c1\ud0dc"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\uc2dc\uc791\uc77c"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\uc885\ub8cc\uc77c"
+    },
+    "unit_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "\ud574\ub2f9 \uacf5\ub3d9\uad6c\ub9e4 \uc801\uc6a9 \uc81c\ud488 \uc6d0\uac00"
+    },
+    "sale_price": {
+      "type": "number",
+      "default": 0,
+      "description": "\uacf5\ub3d9\uad6c\ub9e4 \ud310\ub9e4\uac00"
+    },
+    "commission_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "\uacf5\ub3d9\uad6c\ub9e4 \uc218\uc218\ub8cc\uc728(%)"
+    },
+    "shipping_fee": {
+      "type": "number",
+      "default": 2270,
+      "description": "\uac74\ub2f9 \ud0dd\ubc30\ube44"
+    },
+    "sold_quantity": {
+      "type": "number",
+      "default": 0,
+      "description": "\ud310\ub9e4 \uc218\ub7c9"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\uba54\ubaa8"
+    }
+  },
+  "required": [
+    "name",
+    "unit_cost",
+    "sale_price"
+  ]
+}
