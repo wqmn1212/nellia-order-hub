@@ -2,37 +2,14 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { canAccess } from "@/lib/roleConfig";
-import { LayoutDashboard, Package, Truck, Upload, Settings, Plug, BotMessageSquare, BarChart2, ShoppingBag, Megaphone, CalendarDays, Globe, HardDrive, MessageSquareWarning, Calculator, Wand2, Boxes, Handshake, Star, Instagram, BadgePercent } from "lucide-react";
-
-const NAV = [
-  { to: "/", label: "대시보드", icon: LayoutDashboard },
-  { to: "/calendar", label: "팀 캘린더", icon: CalendarDays },
-  { to: "/orders", label: "주문 관리", icon: Package },
-  { to: "/shipping", label: "송장 출력", icon: Truck },
-  { to: "/upload", label: "주문 업로드", icon: Upload },
-  { to: "/analytics", label: "KPI 분석", icon: BarChart2 },
-  { to: "/marketing-kpi", label: "마케팅 성과", icon: Megaphone },
-  { to: "/ad-hub", label: "광고 관리 (Ad-Hub)", icon: Megaphone },
-  { to: "/influencers", label: "인플루언서 협찬", icon: Handshake },
-  { to: "/instagram", label: "인스타 분석", icon: Instagram },
-  { to: "/reviews", label: "후기 관리", icon: Star },
-  { to: "/products", label: "제품 DB", icon: ShoppingBag },
-  { to: "/inventory", label: "재고 관리", icon: Boxes },
-  { to: "/image-studio", label: "제품 이미지 스튜디오", icon: Wand2 },
-  { to: "/ai-team", label: "AI 직원팀", icon: BotMessageSquare },
-  { to: "/sourcing", label: "글로벌 소싱", icon: Globe },
-  { to: "/profitability", label: "수익성 관리", icon: Calculator },
-  { to: "/group-buying", label: "공동구매", icon: BadgePercent },
-  { to: "/cs-tickets", label: "CS / 클레임", icon: MessageSquareWarning },
-  { to: "/drive", label: "파일 드라이브", icon: HardDrive },
-  { to: "/api-settings", label: "API 연동 설정", icon: Plug },
-];
+import { APP_NAV } from "@/lib/navigation";
+import { Settings } from "lucide-react";
 
 export default function Sidebar() {
   const location = useLocation();
   const { user } = useAuth();
   const role = user?.role || "cs";
-  const visibleNav = NAV.filter((item) => canAccess(role, item.to));
+  const visibleNav = APP_NAV.filter((item) => canAccess(role, item.to));
 
   return (
     <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/80 backdrop-blur-sm h-screen sticky top-0 min-h-0">
