@@ -31,6 +31,7 @@ import Influencers from '@/pages/Influencers';
 import Reviews from '@/pages/Reviews';
 import InstagramAnalytics from '@/pages/InstagramAnalytics';
 import GroupBuying from '@/pages/GroupBuying';
+import Assistant from '@/pages/Assistant';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -68,6 +69,7 @@ const AuthenticatedApp = () => {
         <Route path="/upload" element={<RoleGuard><Upload /></RoleGuard>} />
         <Route path="/api-settings" element={<RoleGuard><ApiSettings /></RoleGuard>} />
         <Route path="/ai-team" element={<RoleGuard><AiTeam /></RoleGuard>} />
+        <Route path="/assistant" element={<RoleGuard><Assistant /></RoleGuard>} />
         <Route path="/analytics" element={<RoleGuard><Analytics /></RoleGuard>} />
         <Route path="/products" element={<RoleGuard><Products /></RoleGuard>} />
         <Route path="/marketing-kpi" element={<RoleGuard><MarketingKpi /></RoleGuard>} />

@@ -1,7 +1,7 @@
 // 역할별 접근 가능 경로 매핑
 export const ROLE_ROUTES = {
   admin: "all", // 모든 페이지 접근 가능
-  marketing: ["/", "/summary", "/calendar", "/analytics", "/marketing-kpi", "/ad-hub", "/influencers", "/instagram", "/reviews", "/products", "/image-studio", "/ai-team", "/drive", "/group-buying"],
+  marketing: ["/", "/summary", "/calendar", "/analytics", "/marketing-kpi", "/ad-hub", "/influencers", "/instagram", "/reviews", "/products", "/image-studio", "/ai-team", "/assistant", "/drive", "/group-buying"],
   logistics: ["/", "/summary", "/calendar", "/orders", "/shipping", "/upload", "/sourcing", "/profitability", "/inventory", "/drive", "/group-buying"],
   cs: ["/", "/summary", "/calendar", "/orders", "/cs-tickets", "/ai-team"],
 };

@@ -1,0 +1,45 @@
+{
+  "name": "AssistantMemo",
+  "type": "object",
+  "properties": {
+    "category": {
+      "type": "string",
+      "enum": [
+        "meeting",
+        "decision",
+        "sales",
+        "marketing",
+        "product",
+        "logistics",
+        "cs",
+        "etc"
+      ],
+      "default": "etc",
+      "description": "\uae30\ub85d \ubd84\ub958"
+    },
+    "title": {
+      "type": "string",
+      "description": "\uae30\ub85d \uc81c\ubaa9"
+    },
+    "content": {
+      "type": "string",
+      "description": "\uae30\ub85d \uc0c1\uc138 \ub0b4\uc6a9"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "\ud0dc\uadf8"
+    },
+    "record_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\uae30\ub85d \uae30\uc900\uc77c"
+    }
+  },
+  "required": [
+    "title",
+    "content"
+  ]
+}

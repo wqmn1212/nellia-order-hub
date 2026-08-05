@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Truck, Upload, Plug, BotMessageSquare, BarChart2, ShoppingBag, Megaphone, CalendarDays, Globe, HardDrive, MessageSquareWarning, Calculator, Wand2, Boxes, Handshake, Star, Instagram, BadgePercent, Gauge } from "lucide-react";
+import { Sparkles, LayoutDashboard, Package, Truck, Upload, Plug, BotMessageSquare, BarChart2, ShoppingBag, Megaphone, CalendarDays, Globe, HardDrive, MessageSquareWarning, Calculator, Wand2, Boxes, Handshake, Star, Instagram, BadgePercent, Gauge } from "lucide-react";
 
 export const APP_NAV = [
   { to: "/", label: "대시보드", icon: LayoutDashboard },
@@ -16,6 +16,7 @@ export const APP_NAV = [
   { to: "/products", label: "제품 DB", icon: ShoppingBag },
   { to: "/inventory", label: "재고 관리", icon: Boxes },
   { to: "/image-studio", label: "제품 이미지 스튜디오", icon: Wand2 },
+  { to: "/assistant", label: "AI 비서", icon: Sparkles },
   { to: "/ai-team", label: "AI 직원팀", icon: BotMessageSquare },
   { to: "/sourcing", label: "글로벌 소싱", icon: Globe },
   { to: "/profitability", label: "수익성 관리", icon: Calculator },
