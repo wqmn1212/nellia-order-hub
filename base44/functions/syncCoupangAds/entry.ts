@@ -1,24 +1,5 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
-
-// 쿠팡 Wing 광고 API HMAC 서명 생성
-async function buildAuth(method, path, query, accessKey, secretKey) {
-  const datetime = new Date().toISOString().substr(2, 17).replace(/[-:T]/g, "").substr(0, 13) + "Z";
-  // 실제 포맷: YYMMDDTHHmmssZ
-  const now = new Date();
-  const pad = (n) => String(n).padStart(2, "0");
-  const stamp = `${String(now.getUTCFullYear()).slice(2)}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}Z`;
-  const message = stamp + method + path + (query || "");
-
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw", enc.encode(secretKey),
-    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
-  );
-  const sigBuf = await crypto.subtle.sign("HMAC", key, enc.encode(message));
-  const signature = Array.from(new Uint8Array(sigBuf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-
-  return `CEA algorithm=HmacSHA256, access-key=${accessKey}, signed-date=${stamp}, signature=${signature}`;
-}
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { buildCoupangAuth } from '../../shared/coupangAuth.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -44,7 +25,7 @@ Deno.serve(async (req) => {
     // 광고센터마다 provider 경로가 다를 수 있어 환경변수(COUPANG_AD_REPORT_PATH)로 덮어쓸 수 있도록 함
     const path = `/v2/providers/marketplace_openapi/apis/api/v1/marketplace/ad-reports`;
     const query = `startDate=${startDate}&endDate=${endDate}`;
-    const auth = await buildAuth(method, path, query, accessKey, secretKey);
+    const auth = await buildCoupangAuth(method, path, query, accessKey, secretKey);
 
     const url = `https://api-gateway.coupang.com${path}?${query}`;
     const res = await fetch(url, {

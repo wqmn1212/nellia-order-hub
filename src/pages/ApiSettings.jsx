@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import ChannelConfigCard from "@/components/api/ChannelConfigCard";
 import SyncGuideCard from "@/components/api/SyncGuideCard";
+import OrderSyncPanel from "@/components/api/OrderSyncPanel";
 
 export default function ApiSettings() {
   const queryClient = useQueryClient();
@@ -25,7 +26,7 @@ export default function ApiSettings() {
       <div>
         <h1 className="text-2xl font-serif font-semibold text-foreground">API 연동 설정</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          판매 채널 API 키를 등록하면 주문이 자동으로 동기화됩니다.
+          판매 채널 API 키를 등록하면 광고 성과와 주문이 자동으로 동기화됩니다.
         </p>
       </div>
 
@@ -41,6 +42,8 @@ export default function ApiSettings() {
           onSaved={() => queryClient.invalidateQueries({ queryKey: ["api-configs"] })}
         />
       </div>
+
+      <OrderSyncPanel />
 
       <SyncGuideCard />
     </div>

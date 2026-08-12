@@ -54,23 +54,31 @@ Deno.serve(async (req) => {
     const reportDate = body.date || yesterday; // YYYY-MM-DD
 
     // 1) 마스터 리포트(AD) 생성 — 일자별 광고 성과
-    const create = await naverFetch("POST", "/stat-reports", apiKey, secretKey, customerId, {
-      reportTp: "AD",
-      statDt: `${reportDate}T00:00:00.000Z`,
-    });
-    if (!create.ok) {
-      return Response.json({ error: `네이버 리포트 생성 오류 (${create.status})`, detail: create.json }, { status: 502 });
+    // 이전 실행이 시간 초과된 경우 reportJobId를 넘겨 이어받을 수 있다.
+    let reportJobId = body.reportJobId;
+    if (!reportJobId) {
+      const create = await naverFetch("POST", "/stat-reports", apiKey, secretKey, customerId, {
+        reportTp: "AD",
+        statDt: `${reportDate}T00:00:00.000Z`,
+      });
+      if (!create.ok) {
+        return Response.json({ error: `네이버 리포트 생성 오류 (${create.status})`, detail: create.json }, { status: 502 });
+      }
+      reportJobId = create.json.reportJobId;
     }
-    const reportJobId = create.json.reportJobId;
 
-    // 2) 완료 대기 (최대 ~20초)
+    // 2) 완료 대기 (최대 ~45초)
     let downloadUrl = null;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 30; i++) {
       await sleep(2000);
       const status = await naverFetch("GET", `/stat-reports/${reportJobId}`, apiKey, secretKey, customerId);
       if (status.ok && status.json.status === "BUILT") {
         downloadUrl = status.json.downloadUrl;
         break;
+      }
+      // NONE = 해당 일자에 집계된 검색광고 데이터가 없음
+      if (status.ok && status.json.status === "NONE") {
+        return Response.json({ success: true, platform: "naver", date: reportDate, rows: 0, note: "해당 일자 광고 데이터 없음" });
       }
       if (status.ok && status.json.status === "ERROR") {
         return Response.json({ error: "네이버 리포트 생성 실패", detail: status.json }, { status: 502 });

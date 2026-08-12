@@ -10,7 +10,8 @@ const CHANNEL_META = {
   coupang: {
     label: "쿠팡",
     color: "bg-red-50 text-red-700 border-red-100",
-    secrets: ["COUPANG_AD_ACCESS_KEY", "COUPANG_AD_SECRET_KEY", "COUPANG_VENDOR_ID"],
+    adSecrets: ["COUPANG_AD_ACCESS_KEY", "COUPANG_AD_SECRET_KEY", "COUPANG_VENDOR_ID"],
+    orderSecrets: ["COUPANG_AD_ACCESS_KEY", "COUPANG_AD_SECRET_KEY", "COUPANG_VENDOR_ID"],
     docUrl: "https://openapi.coupang.com",
     docLabel: "쿠팡 오픈API 문서",
     guide: "Wing → 설정 → 개발자 정보에서 발급",
@@ -18,7 +19,8 @@ const CHANNEL_META = {
   naver: {
     label: "네이버 스마트스토어",
     color: "bg-green-50 text-green-700 border-green-100",
-    secrets: ["NAVER_AD_API_KEY", "NAVER_AD_SECRET_KEY", "NAVER_AD_CUSTOMER_ID"],
+    adSecrets: ["NAVER_AD_API_KEY", "NAVER_AD_SECRET_KEY", "NAVER_AD_CUSTOMER_ID"],
+    orderSecrets: ["NAVER_COMMERCE_CLIENT_ID", "NAVER_COMMERCE_CLIENT_SECRET"],
     docUrl: "https://apicenter.commerce.naver.com",
     docLabel: "네이버 커머스 API 문서",
     guide: "네이버 커머스 API 센터 → 애플리케이션 등록 후 발급",
@@ -80,11 +82,18 @@ export default function ChannelConfigCard({ channel, config, onSaved }) {
         </div>
 
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-foreground">필요한 보안 키</p>
-          {meta.secrets.map((name) => (
-            <div key={name} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <KeyRound className="w-3 h-3 text-muted-foreground/70" />
-              <code className="font-mono text-[11px] bg-muted px-1.5 py-0.5 rounded">{name}</code>
+          {[
+            { title: "광고 성과 수집용 키", list: meta.adSecrets },
+            { title: "주문 수집용 키", list: meta.orderSecrets },
+          ].map((group) => (
+            <div key={group.title} className="space-y-1.5">
+              <p className="text-xs font-medium text-foreground">{group.title}</p>
+              {group.list.map((name) => (
+                <div key={name} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <KeyRound className="w-3 h-3 text-muted-foreground/70" />
+                  <code className="font-mono text-[11px] bg-muted px-1.5 py-0.5 rounded">{name}</code>
+                </div>
+              ))}
             </div>
           ))}
           <p className="text-[11px] text-muted-foreground/80 pt-1">
