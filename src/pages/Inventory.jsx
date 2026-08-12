@@ -7,6 +7,7 @@ import { Boxes, Search } from "lucide-react";
 import InventoryStatsCards from "@/components/inventory/InventoryStatsCards";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import StockAdjustDialog from "@/components/inventory/StockAdjustDialog";
+import OrderSyncPanel from "@/components/inventory/OrderSyncPanel";
 
 export default function Inventory() {
   const [search, setSearch] = useState("");
@@ -57,6 +58,8 @@ export default function Inventory() {
       ) : (
         <>
           <InventoryStatsCards products={products} />
+
+          <OrderSyncPanel products={products} />
 
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <div className="relative flex-1">

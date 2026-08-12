@@ -9,6 +9,9 @@ import AiOrderAnalysis from "@/components/dashboard/AiOrderAnalysis";
 import StockAlert from "@/components/dashboard/StockAlert";
 import TaskFeed from "@/components/dashboard/TaskFeed";
 import RecentTaskUpdates from "@/components/dashboard/RecentTaskUpdates";
+import SalesOverview from "@/components/dashboard/SalesOverview";
+import RevenueTrendChart from "@/components/dashboard/RevenueTrendChart";
+import TopProducts from "@/components/dashboard/TopProducts";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 
@@ -47,6 +50,18 @@ export default function Dashboard() {
         <StatsCard label="신규 주문" value={newCount} sublabel="처리 대기" icon={Clock} accent="amber" />
         <StatsCard label="출고 준비" value={preparingCount} sublabel="송장 작업 중" icon={Truck} accent="primary" />
         <StatsCard label="출고 완료" value={shippedCount} sublabel="배송 진행중" icon={CheckCircle2} accent="emerald" />
+      </div>
+
+      {/* 판매·매출 지표 */}
+      <SalesOverview orders={orders} />
+
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <RevenueTrendChart orders={orders} />
+        </div>
+        <div className="lg:col-span-2">
+          <TopProducts orders={orders} />
+        </div>
       </div>
 
       {/* Split */}
