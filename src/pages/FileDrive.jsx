@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FolderOpen, Folder, FileText, Image, Film, FileArchive, Upload, Plus, Trash2, Download, Search, MoreVertical } from "lucide-react";
 import { useDropPaste } from "@/hooks/useDropPaste";
+import GoogleDriveBrowser from "@/components/drive/GoogleDriveBrowser";
+import { HardDrive } from "lucide-react";
 
 function getFileIcon(mimeType) {
   if (!mimeType) return FileText;
@@ -32,6 +34,7 @@ export default function FileDrive() {
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [folders, setFolders] = useState(["기본 폴더", "마케팅", "소싱", "주문/물류"]);
+  const [showGoogleDrive, setShowGoogleDrive] = useState(false);
 
   const { data: files = [], isLoading } = useQuery({
     queryKey: ["drive-files"],
@@ -131,23 +134,36 @@ export default function FileDrive() {
             return (
               <button
                 key={folder}
-                onClick={() => setSelectedFolder(folder)}
+                onClick={() => { setSelectedFolder(folder); setShowGoogleDrive(false); }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
-                  active ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-muted hover:text-foreground"
+                  active && !showGoogleDrive ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-muted hover:text-foreground"
                 }`}
               >
-                {active ? <FolderOpen className="w-4 h-4 shrink-0" /> : <Folder className="w-4 h-4 shrink-0" />}
+                {active && !showGoogleDrive ? <FolderOpen className="w-4 h-4 shrink-0" /> : <Folder className="w-4 h-4 shrink-0" />}
                 <span className="flex-1 truncate">{folder}</span>
-                <span className={`text-[10px] ${active ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                <span className={`text-[10px] ${active && !showGoogleDrive ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                   {folderFileCounts[folder] || 0}
                 </span>
               </button>
             );
           })}
+
+          <div className="pt-3 mt-3 border-t border-border">
+            <button
+              onClick={() => setShowGoogleDrive(true)}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
+                showGoogleDrive ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <HardDrive className="w-4 h-4 shrink-0" />
+              <span className="flex-1 truncate">구글 드라이브</span>
+            </button>
+          </div>
         </nav>
       </aside>
 
       {/* 메인 파일 영역 */}
+      {showGoogleDrive ? <GoogleDriveBrowser /> : (
       <div className="flex-1 flex flex-col min-w-0 relative" {...dropHandlers}>
         {isDragging && (
           <div className="absolute inset-0 z-20 bg-primary/10 border-2 border-dashed border-primary rounded-lg m-2 flex flex-col items-center justify-center pointer-events-none">
@@ -259,6 +275,7 @@ export default function FileDrive() {
           )}
         </div>
       </div>
+      )}
 
       {/* 새 폴더 다이얼로그 */}
       <Dialog open={showNewFolder} onOpenChange={setShowNewFolder}>
