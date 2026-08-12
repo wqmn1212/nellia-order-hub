@@ -42,8 +42,7 @@ Deno.serve(async (req) => {
     const method = "GET";
     // 쿠팡 광고센터 리포트 API (셀러 광고 일자별 성과)
     // 광고센터마다 provider 경로가 다를 수 있어 환경변수(COUPANG_AD_REPORT_PATH)로 덮어쓸 수 있도록 함
-    const path = Deno.env.get("COUPANG_AD_REPORT_PATH")
-      || `/v2/providers/marketplace_openapi/apis/api/v1/marketplace/ad-reports`;
+    const path = `/v2/providers/marketplace_openapi/apis/api/v1/marketplace/ad-reports`;
     const query = `startDate=${startDate}&endDate=${endDate}`;
     const auth = await buildAuth(method, path, query, accessKey, secretKey);
 
@@ -58,6 +57,12 @@ Deno.serve(async (req) => {
     });
 
     const text = await res.text();
+    if (res.status === 404) {
+      // 쿠팡 Open API에는 광고 리포트 엔드포인트가 공개되어 있지 않음 (광고센터 별도 승인 필요)
+      return Response.json({
+        error: "쿠팡 광고 성과 API는 판매자 Open API에서 제공되지 않습니다. 광고비는 광고 허브에서 수동 입력해주세요.",
+      }, { status: 200 });
+    }
     if (!res.ok) {
       return Response.json({ error: `쿠팡 API 오류 (${res.status})`, detail: text.slice(0, 500) }, { status: 502 });
     }
