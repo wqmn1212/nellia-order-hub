@@ -12,6 +12,7 @@ import RecentTaskUpdates from "@/components/dashboard/RecentTaskUpdates";
 import SalesOverview from "@/components/dashboard/SalesOverview";
 import RevenueTrendChart from "@/components/dashboard/RevenueTrendChart";
 import TopProducts from "@/components/dashboard/TopProducts";
+import ChannelPerformance from "@/components/dashboard/ChannelPerformance";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 
@@ -62,6 +63,10 @@ export default function Dashboard() {
         <div className="lg:col-span-2">
           <TopProducts orders={orders} />
         </div>
+      </div>
+
+      <div className="mb-6">
+        <ChannelPerformance orders={orders} />
       </div>
 
       {/* Split */}
