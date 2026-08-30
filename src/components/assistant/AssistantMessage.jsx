@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { ChevronDown, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { toast } from "sonner";
+import { ChevronDown, Loader2, CheckCircle2, XCircle, Copy, RotateCcw } from "lucide-react";
+import { parseCanvasBlocks } from "@/lib/parseCanvasBlocks";
+import CanvasCard from "./CanvasCard";
 
 const isFailed = (tc) => {
   const raw = typeof tc.results === "string" ? tc.results : JSON.stringify(tc.results ?? "");
@@ -34,16 +37,41 @@ function ToolCall({ toolCall }) {
   );
 }
 
-export default function AssistantMessage({ message }) {
+export default function AssistantMessage({ message, canvas, isCanvasOpen, onOpenCanvas, onRegenerate }) {
   const isUser = message.role === "user";
-  return (
-    <div className={isUser ? "flex justify-end" : "flex justify-start"}>
-      <div className={`max-w-[88%] rounded-2xl px-4 py-3 ${isUser ? "bg-primary text-primary-foreground" : "bg-card border"}`}>
-        {message.content && (isUser
-          ? <p className="whitespace-pre-wrap text-sm">{message.content}</p>
-          : <ReactMarkdown className="prose prose-sm max-w-none text-sm prose-table:text-xs">{message.content}</ReactMarkdown>)}
-        {message.tool_calls?.map((tc, i) => <ToolCall key={i} toolCall={tc} />)}
+
+  if (isUser) {
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[75%] rounded-2xl bg-primary px-4 py-3 text-primary-foreground">
+          <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+        </div>
       </div>
+    );
+  }
+
+  const { text } = parseCanvasBlocks(message.content || "");
+
+  return (
+    <div className="group">
+      {text && <ReactMarkdown className="prose prose-sm max-w-none text-sm">{text}</ReactMarkdown>}
+      {canvas && <CanvasCard canvas={canvas} isOpen={isCanvasOpen} onOpen={onOpenCanvas} />}
+      {message.tool_calls?.map((tc, i) => <ToolCall key={i} toolCall={tc} />)}
+      {message.content && (
+        <div className="mt-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <button
+            onClick={async () => { await navigator.clipboard.writeText(message.content); toast.success("복사했어요"); }}
+            className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+          >
+            <Copy className="h-3.5 w-3.5" />복사
+          </button>
+          {onRegenerate && (
+            <button onClick={onRegenerate} className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted">
+              <RotateCcw className="h-3.5 w-3.5" />다시 생성
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
