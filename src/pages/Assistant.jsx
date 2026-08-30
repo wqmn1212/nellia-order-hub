@@ -4,24 +4,11 @@ import AssistantMessage from "@/components/assistant/AssistantMessage";
 import AssistantComposer from "@/components/assistant/AssistantComposer";
 import AssistantSuggestions from "@/components/assistant/AssistantSuggestions";
 import CanvasPanel from "@/components/assistant/CanvasPanel";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Toaster } from "@/components/ui/sonner";
 import { parseCanvasBlocks } from "@/lib/parseCanvasBlocks";
 import { Loader2 } from "lucide-react";
 
 const AGENT_NAME = "nellia_assistant";
-
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia("(min-width: 1024px)").matches);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const handler = (e) => setIsDesktop(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return isDesktop;
-}
 
 export default function Assistant() {
   const [conversation, setConversation] = useState(null);
@@ -30,7 +17,6 @@ export default function Assistant() {
   const [canvas, setCanvas] = useState(null);
   const [autoOpenDisabled, setAutoOpenDisabled] = useState(false);
   const bottomRef = useRef(null);
-  const isDesktop = useIsDesktop();
 
   useEffect(() => {
     (async () => {
@@ -137,18 +123,21 @@ export default function Assistant() {
   return (
     <>
       <Toaster />
-      {canvasOpen && isDesktop ? (
-        <ResizablePanelGroup direction="horizontal" className="min-h-[calc(100vh-4rem)] lg:min-h-screen">
-          <ResizablePanel defaultSize={40} minSize={30}>{chat}</ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={60} minSize={30} maxSize={70}>{panel}</ResizablePanel>
-        </ResizablePanelGroup>
-      ) : (
-        chat
-      )}
-      <Drawer open={canvasOpen && !isDesktop} onOpenChange={(o) => { if (!o) closeCanvas(); }}>
-        <DrawerContent className="h-[85vh] p-0">{panel}</DrawerContent>
-      </Drawer>
+      <div className="flex">
+        <div className={canvasOpen ? "min-w-0 flex-1 lg:w-[45%] lg:flex-none" : "min-w-0 flex-1"}>{chat}</div>
+        {canvasOpen && (
+          <>
+            {/* 데스크톱: 우측 분할 */}
+            <div className="hidden h-[calc(100vh-4rem)] w-[55%] shrink-0 border-l lg:sticky lg:top-0 lg:block lg:h-screen">
+              {panel}
+            </div>
+            {/* 모바일: 하단 시트 */}
+            <div className="fixed inset-x-0 bottom-0 z-40 h-[80vh] rounded-t-2xl border-t bg-background shadow-2xl lg:hidden">
+              {panel}
+            </div>
+          </>
+        )}
+      </div>
     </>
   );
 }
