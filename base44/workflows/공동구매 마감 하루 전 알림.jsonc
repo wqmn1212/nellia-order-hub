@@ -1,0 +1,44 @@
+{
+  "name": "\uacf5\ub3d9\uad6c\ub9e4 \ub9c8\uac10 \ud558\ub8e8 \uc804 \uc54c\ub9bc",
+  "description": "\ub9e4\uc77c \uc624\uc804 9\uc2dc\uc5d0 \ub0b4\uc77c \ub9c8\uac10\ub418\ub294 \uacf5\ub3d9\uad6c\ub9e4\ub97c \ud655\uc778\ud574 \uad00\ub9ac\uc790\uc5d0\uac8c \uc54c\ub9bc \uba54\uc77c\uc744 \ubc1c\uc1a1\ud569\ub2c8\ub2e4.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 0 * * *",
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "migrated_workflow",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "groupBuyDeadlineCheck",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "groupBuyDeadlineCheck"
+  }
+}

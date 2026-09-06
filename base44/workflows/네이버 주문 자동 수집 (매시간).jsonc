@@ -1,0 +1,44 @@
+{
+  "name": "\ub124\uc774\ubc84 \uc8fc\ubb38 \uc790\ub3d9 \uc218\uc9d1 (\ub9e4\uc2dc\uac04)",
+  "description": "\ub124\uc774\ubc84 \ucee4\uba38\uc2a4 API\uc5d0\uc11c \ucd5c\uadfc 24\uc2dc\uac04 \ubcc0\uacbd \uc8fc\ubb38\uc744 \uc218\uc9d1\ud569\ub2c8\ub2e4. IP \ud5c8\uc6a9 \ub4f1\ub85d \uac80\uc99d \ud6c4 \ud65c\uc131\ud654.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": 1,
+      "interval_unit": "hours",
+      "interval_anchor": "2026-08-12T02:37:12.669000",
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "migrated_workflow",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "syncNaverOrders",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "syncNaverOrders"
+  }
+}

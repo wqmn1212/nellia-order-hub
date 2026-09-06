@@ -1,0 +1,37 @@
+{
+  "name": "\ucd9c\uace0 \uc2dc \uc7ac\uace0 \ucc28\uac10 \ubc0f \ub85c\uadf8",
+  "description": "\uc8fc\ubb38 \uc0c1\ud0dc\uac00 shipped\ub85c \ubcc0\uacbd\ub418\uba74 \uc7ac\uace0 \ucc28\uac10 + InventoryLog \uae30\ub85d",
+  "trigger": {
+    "condition": "${ ((.trigger.changed_fields | index(\"status\") != null) and (.trigger.data.status == \"shipped\")) }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "update"
+      ],
+      "entity_name": "Order"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "migrated_workflow",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "onOrderShipped",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "onOrderShipped"
+  }
+}

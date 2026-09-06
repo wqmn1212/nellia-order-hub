@@ -1,0 +1,37 @@
+{
+  "name": "\uc8fc\ubb38 \uc0dd\uc131 \uc2dc \uc7ac\uace0 \ucc28\uac10",
+  "description": "\uc8fc\ubb38\uc774 \uc0c8\ub85c \uc0dd\uc131\ub418\uba74 \uc0c1\ud488\uba85\uc73c\ub85c \uc81c\ud488\uc744 \ucc3e\uc544 \uc218\ub7c9\ub9cc\ud07c \uc7ac\uace0\ub97c \ucc28\uac10\ud558\uace0 InventoryLog\ub97c \uae30\ub85d\ud569\ub2c8\ub2e4 (\ucde8\uc18c \uc8fc\ubb38 \uc81c\uc678, \uc911\ubcf5 \ucc28\uac10 \ubc29\uc9c0)",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "Order"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "migrated_workflow",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "onOrderCreated",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "onOrderCreated"
+  }
+}
