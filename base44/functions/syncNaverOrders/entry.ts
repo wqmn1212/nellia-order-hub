@@ -75,8 +75,7 @@ function toOrder(item) {
 export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // 스케줄 실행에는 사용자 세션이 없으므로 서비스 권한으로만 동작
 
     const clientId = Deno.env.get("NAVER_COMMERCE_CLIENT_ID");
     const clientSecret = Deno.env.get("NAVER_COMMERCE_CLIENT_SECRET");

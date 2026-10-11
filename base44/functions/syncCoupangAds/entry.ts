@@ -4,8 +4,7 @@ import { buildCoupangAuth } from '../../shared/coupangAuth.ts';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // 스케줄 실행에는 사용자 세션이 없으므로 서비스 권한으로만 동작
 
     const accessKey = Deno.env.get("COUPANG_AD_ACCESS_KEY");
     const secretKey = Deno.env.get("COUPANG_AD_SECRET_KEY");
