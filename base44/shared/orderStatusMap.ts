@@ -1,5 +1,5 @@
 // 채널 원본 주문 상태 → Order.status enum 매핑 (여러 수집 함수에서 공용 사용)
-// Order.status enum: new | preparing | shipped | delivered | cancelled
+// Order.status enum: new | preparing | shipped | delivered | cancelled | returned
 
 export const NAVER_STATUS_MAP = {
   PAYMENT_WAITING: "new",
@@ -10,7 +10,7 @@ export const NAVER_STATUS_MAP = {
   EXCHANGED: "delivered",
   CANCELED: "cancelled",
   CANCELED_BY_NOPAYMENT: "cancelled",
-  RETURNED: "cancelled",
+  RETURNED: "returned",
 };
 
 export const COUPANG_STATUS_MAP = {
@@ -21,6 +21,8 @@ export const COUPANG_STATUS_MAP = {
   FINAL_DELIVERY: "delivered",
   NONE_TRACKING: "shipped",
   CANCEL: "cancelled",
+  RETURN: "returned",
+  RETURNED: "returned",
 };
 
 export const NAVER_COURIER_MAP = {

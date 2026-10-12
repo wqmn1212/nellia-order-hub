@@ -19,6 +19,7 @@ export default function Upload() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("idle"); // idle | analyzing | ready | uploading | success | error
   const [parsedOrders, setParsedOrders] = useState([]);
+  const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
@@ -53,6 +54,10 @@ export default function Upload() {
         setError("AI가 주문 데이터를 인식하지 못했습니다. 다른 시트나 파일로 시도해주세요");
         return;
       }
+      // 중복 판정을 위해 서버에서 dry-run 조회
+      const res = await base44.functions.invoke("importOrders", { orders, channel, dry_run: true });
+      const pv = res.data || res;
+      setPreview(pv);
       setParsedOrders(orders);
       setStatus("ready");
     } catch (e) {
@@ -65,12 +70,13 @@ export default function Upload() {
     setStatus("uploading");
     setError("");
     try {
-      const orders = parsedOrders.map((o) => ({ ...o, channel, status: "new" }));
-      await base44.entities.Order.bulkCreate(orders);
+      const res = await base44.functions.invoke("importOrders", { orders: parsedOrders, channel, dry_run: false });
+      const r = res.data || res;
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       setStatus("success");
-      setResult({ count: orders.length });
+      setResult(r);
       setParsedOrders([]);
+      setPreview(null);
       setFile(null);
     } catch (e) {
       setStatus("error");
@@ -139,13 +145,28 @@ export default function Upload() {
             </div>
           )}
 
-          {parsedOrders.length > 0 && <OrderPreviewTable orders={parsedOrders} />}
+          {parsedOrders.length > 0 && (
+            <>
+              <OrderPreviewTable orders={parsedOrders} />
+              {preview && (
+                <div className="flex flex-wrap gap-3 p-4 bg-secondary/40 rounded-lg text-sm">
+                  <span className="font-medium">신규 {preview.created}건</span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="font-medium">갱신 {preview.updated}건</span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="text-muted-foreground">동일 {preview.identical}건</span>
+                </div>
+              )}
+            </>
+          )}
 
           {status === "success" && result && (
             <div className="flex items-start gap-2 p-4 bg-emerald-50 text-emerald-800 rounded-lg text-sm">
               <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <p className="font-medium">{result.count}건의 주문이 등록되었습니다</p>
+                <p className="font-medium">
+                  신규 {result.created}건 · 갱신 {result.updated}건 · 동일 {result.identical}건 처리 완료
+                </p>
                 <button onClick={() => navigate("/orders")} className="text-xs underline mt-1">
                   주문 목록으로 이동 →
                 </button>

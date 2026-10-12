@@ -63,7 +63,8 @@
         "preparing",
         "shipped",
         "delivered",
-        "cancelled"
+        "cancelled",
+        "returned"
       ],
       "default": "new",
       "description": "\uc8fc\ubb38 \uc0c1\ud0dc"
@@ -93,6 +94,14 @@
     "notes": {
       "type": "string",
       "description": "\ub0b4\ubd80 \uba54\ubaa8"
+    },
+    "dedupe_key": {
+      "type": "string",
+      "description": "\uc911\ubcf5 \uc8fc\ubb38 \ud310\ubcc4 \ud0a4 (channel + order_number + product_name + customer_name + order_date \uc815\uaddc\ud654)"
+    },
+    "import_batch_id": {
+      "type": "string",
+      "description": "\uc5d1\uc140 \uc5c5\ub85c\ub4dc \ubc30\uce58 ID (\ub864\ubc31\uc6a9)"
     }
   },
   "required": [
