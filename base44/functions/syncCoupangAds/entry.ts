@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     // 조회 기간: 기본 어제 하루
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() + 9 * 3600000 - 86400000).toISOString().slice(0, 10); // KST 기준 전일
     const startDate = (body.startDate || yesterday).replace(/-/g, "");
     const endDate = (body.endDate || yesterday).replace(/-/g, "");
 

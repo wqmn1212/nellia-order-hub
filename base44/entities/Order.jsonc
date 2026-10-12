@@ -97,7 +97,7 @@
     },
     "dedupe_key": {
       "type": "string",
-      "description": "\uc911\ubcf5 \uc8fc\ubb38 \ud310\ubcc4 \ud0a4 (channel + order_number + product_name + customer_name + order_date \uc815\uaddc\ud654)"
+      "description": "\uc911\ubcf5 \uc8fc\ubb38 \ud310\ubcc4 \ud0a4"
     },
     "import_batch_id": {
       "type": "string",
@@ -108,5 +108,74 @@
     "channel",
     "customer_name",
     "product_name"
-  ]
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "logistics"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "cs"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "marketing"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "logistics"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "cs"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "logistics"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "cs"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }

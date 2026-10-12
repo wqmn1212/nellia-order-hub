@@ -20,7 +20,8 @@ export default async function (req) {
       results.naver = { error: e.message };
     }
 
-    return Response.json({ success: true, results, syncedAt: new Date().toISOString() });
+    const success = Object.values(results).every((r) => r && !r.error);
+    return Response.json({ success, results, syncedAt: new Date().toISOString() }, { status: success ? 200 : 502 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

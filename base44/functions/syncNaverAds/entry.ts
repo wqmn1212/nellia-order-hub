@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json().catch(() => ({}));
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() + 9 * 3600000 - 86400000).toISOString().slice(0, 10); // KST 기준 전일
     const reportDate = body.date || yesterday; // YYYY-MM-DD
 
     // 1) 마스터 리포트(AD) 생성 — 일자별 광고 성과
